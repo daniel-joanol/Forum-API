@@ -1,5 +1,7 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.NewUserResponse;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +24,25 @@ public class User {
     private String username;
 
     @Column
-    private int hashedPassword;
+    private String password;
+
+    @Column
+    private Boolean isActivated = false;
+
+    @Column
+    private Integer validationCode;
+
+    @Column
+    private Integer activationCode;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "USER_AVATAR",
+            joinColumns = {
+                    @JoinColumn(name = "USER_ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "FILE_ID") })
+    private File avatar;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_ROLES",
@@ -64,10 +84,36 @@ public class User {
     public User() {
     }
 
-    public User(String email, String username, String password) {
+    public User(String email, String username, String password, Set<Role> roles) {
         this.email = email;
         this.username = username;
-        hashedPassword = generateHashCode(password, email);
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, Set<Role> roles, File avatar) {
+        this.email = email;
+        this.username = username;
+        this.avatar = avatar;
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, Set<Role> roles, Set<Subject> hasAccess) {
+        this.email = email;
+        this.username = username;
+        this.hasAccess = hasAccess;
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
+        this.email = email;
+        this.username = username;
+        this.avatar = avatar;
+        this.roles = roles;
+        this.password = password;
+        this.hasAccess = hasAccess;
     }
 
     //Getters and Setters (also remove and add for the Sets)
@@ -96,16 +142,12 @@ public class User {
         this.username = username;
     }
 
-    public int getHashedPassword() {
-        return hashedPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setHashedPassword(int hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
-
-    public void setHashedPassword(String password) {
-        hashedPassword = generateHashCode(password, email);
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Set<Role> getRoles() {
@@ -172,15 +214,43 @@ public class User {
         followsPost.add(post);
     }
 
+    public Boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(Boolean activated) {
+        isActivated = activated;
+    }
+
+    public Integer getValidationCode() {
+        return validationCode;
+    }
+
+    public void setValidationCode(Integer validationCode) {
+        this.validationCode = validationCode;
+    }
+
+    public Integer getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(Integer activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public File getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(File avatar) {
+        this.avatar = avatar;
+    }
+
     //Other methods
 
-    /**
-     * Generates a new hashCode from the password and email
-     * @param password String
-     * @param email String
-     * @return int hashcode
-     */
-    public int generateHashCode(String password, String email){
-        return password.hashCode()*email.hashCode();
+    public NewUserResponse getDtoFromUser(){
+        return new NewUserResponse(
+                id, email, username, avatar, hasAccess, isActivated, followsSubject, followsPost
+        );
     }
 }
