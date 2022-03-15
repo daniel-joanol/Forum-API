@@ -1,5 +1,7 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.NewUserResponse;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -22,7 +24,28 @@ public class User {
     private String username;
 
     @Column
-    private int hashedPassword;
+    private boolean rememberMe;
+
+    @Column
+    private String password;
+
+    @Column
+    private boolean isActivated = false;
+
+    @Column
+    private int validationCode;
+
+    @Column
+    private int activationCode;
+
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "USER_AVATAR",
+            joinColumns = {
+                    @JoinColumn(name = "USER_ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "FILE_ID") })
+    private File avatar;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_ROLES",
@@ -64,10 +87,40 @@ public class User {
     public User() {
     }
 
-    public User(String email, String username, String password) {
+    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles) {
         this.email = email;
         this.username = username;
-        hashedPassword = generateHashCode(password, email);
+        this.rememberMe = rememberMe;
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, File avatar) {
+        this.email = email;
+        this.username = username;
+        this.rememberMe = rememberMe;
+        this.avatar = avatar;
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, Set<Subject> hasAccess) {
+        this.email = email;
+        this.username = username;
+        this.rememberMe = rememberMe;
+        this.hasAccess = hasAccess;
+        this.roles = roles;
+        this.password = password;
+    }
+
+    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
+        this.email = email;
+        this.username = username;
+        this.rememberMe = rememberMe;
+        this.avatar = avatar;
+        this.roles = roles;
+        this.password = password;
+        this.hasAccess = hasAccess;
     }
 
     //Getters and Setters (also remove and add for the Sets)
@@ -96,16 +149,12 @@ public class User {
         this.username = username;
     }
 
-    public int getHashedPassword() {
-        return hashedPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public void setHashedPassword(int hashedPassword) {
-        this.hashedPassword = hashedPassword;
-    }
-
-    public void setHashedPassword(String password) {
-        hashedPassword = generateHashCode(password, email);
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public Set<Role> getRoles() {
@@ -172,15 +221,51 @@ public class User {
         followsPost.add(post);
     }
 
+    public boolean isActivated() {
+        return isActivated;
+    }
+
+    public void setActivated(boolean activated) {
+        isActivated = activated;
+    }
+
+    public int getValidationCode() {
+        return validationCode;
+    }
+
+    public void setValidationCode(int validationCode) {
+        this.validationCode = validationCode;
+    }
+
+    public boolean isRememberMe() {
+        return rememberMe;
+    }
+
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
+    }
+
+    public int getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(int activationCode) {
+        this.activationCode = activationCode;
+    }
+
+    public File getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(File avatar) {
+        this.avatar = avatar;
+    }
+
     //Other methods
 
-    /**
-     * Generates a new hashCode from the password and email
-     * @param password String
-     * @param email String
-     * @return int hashcode
-     */
-    public int generateHashCode(String password, String email){
-        return password.hashCode()*email.hashCode();
+    public NewUserResponse getDtoFromUser(){
+        return new NewUserResponse(
+                id, email, username, rememberMe, avatar, hasAccess, isActivated, followsSubject, followsPost
+        );
     }
 }

@@ -44,6 +44,7 @@ public class JwtTokenUtil {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
 
+        //If remember is true, no expiration date is set
         if (remember){
             return Jwts.builder()
                     .setSubject((userPrincipal.getUsername()))
@@ -98,7 +99,6 @@ public class JwtTokenUtil {
     }
 
     /**
-     * Método que devuelve un token añadiendo los datos del usuario (username y password), así como los roles.
      * Method that returns a token with the user data (username and password), plus roles
      * @param token jwt token
      * @param existingAuth authentication type

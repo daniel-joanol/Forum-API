@@ -7,15 +7,15 @@ public class LoginRequest {
 
     private String username;
     private String password;
-    private String remember;
+    private boolean rememberMe;
 
     public LoginRequest() {
     }
 
-    public LoginRequest(String username, String password, String remember) {
+    public LoginRequest(String username, String password, boolean rememberMe) {
         this.username = username;
         this.password = password;
-        this.remember = remember;
+        this.rememberMe = rememberMe;
     }
 
     public String getUsername() {
@@ -34,11 +34,11 @@ public class LoginRequest {
         this.password = password;
     }
 
-    public String getRemember() {
-        return remember;
+    public boolean isRememberMe() {
+        return rememberMe;
     }
 
-    public void setRemember(String remember) {
-        this.remember = remember;
+    public void setRememberMe(boolean rememberMe) {
+        this.rememberMe = rememberMe;
     }
 }

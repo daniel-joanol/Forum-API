@@ -33,7 +33,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
         return new org.springframework.security.core.userdetails.User(
-                user.getUsername(),String.valueOf(user.getHashedPassword()), getAuthority(user));
+                user.getUsername(),String.valueOf(user.getPassword()), getAuthority(user));
     }
 
     /**
