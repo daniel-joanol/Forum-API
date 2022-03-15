@@ -24,9 +24,6 @@ public class User {
     private String username;
 
     @Column
-    private boolean rememberMe;
-
-    @Column
     private String password;
 
     @Column
@@ -87,36 +84,32 @@ public class User {
     public User() {
     }
 
-    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles) {
+    public User(String email, String username, String password, Set<Role> roles) {
         this.email = email;
         this.username = username;
-        this.rememberMe = rememberMe;
         this.roles = roles;
         this.password = password;
     }
 
-    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, File avatar) {
+    public User(String email, String username, String password, Set<Role> roles, File avatar) {
         this.email = email;
         this.username = username;
-        this.rememberMe = rememberMe;
         this.avatar = avatar;
         this.roles = roles;
         this.password = password;
     }
 
-    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, Set<Role> roles, Set<Subject> hasAccess) {
         this.email = email;
         this.username = username;
-        this.rememberMe = rememberMe;
         this.hasAccess = hasAccess;
         this.roles = roles;
         this.password = password;
     }
 
-    public User(String email, String username, String password, boolean rememberMe, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
         this.email = email;
         this.username = username;
-        this.rememberMe = rememberMe;
         this.avatar = avatar;
         this.roles = roles;
         this.password = password;
@@ -237,14 +230,6 @@ public class User {
         this.validationCode = validationCode;
     }
 
-    public boolean isRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(boolean rememberMe) {
-        this.rememberMe = rememberMe;
-    }
-
     public int getActivationCode() {
         return activationCode;
     }
@@ -265,7 +250,7 @@ public class User {
 
     public NewUserResponse getDtoFromUser(){
         return new NewUserResponse(
-                id, email, username, rememberMe, avatar, hasAccess, isActivated, followsSubject, followsPost
+                id, email, username, avatar, hasAccess, isActivated, followsSubject, followsPost
         );
     }
 }

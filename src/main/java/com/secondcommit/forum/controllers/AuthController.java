@@ -66,6 +66,11 @@ public class AuthController {
 
         Optional<User> userOpt = userRepository.findByUsername(loginRequest.getUsername());
 
+        //If the user doesn't exist, returns bad request
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user " + userOpt.get().getUsername() + "doesn't exist"));
+
         //If the user isn't activated yet, the login won't work
         if (!userOpt.get().isActivated())
             return ResponseEntity.badRequest()
@@ -92,8 +97,7 @@ public class AuthController {
         //Validates the DTO
         if (newUser.getUsername() != null &&
             newUser.getEmail() != null &&
-            newUser.getPassword() != null &&
-            newUser.isRememberMe() != null)
+            newUser.getPassword() != null)
             return userService.createUser(newUser);
 
         return ResponseEntity.badRequest()

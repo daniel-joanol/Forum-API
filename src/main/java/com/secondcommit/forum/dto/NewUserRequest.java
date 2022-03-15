@@ -13,18 +13,22 @@ public class NewUserRequest {
     private String email;
     private String username;
     private String password;
-    private Boolean rememberMe;
     private File avatar;
     private Set<Subject> hasAccess;
 
     public NewUserRequest() {
     }
 
-    public NewUserRequest(String email, String username, String password, Boolean rememberMe, File avatar, Set<Subject> hasAccess) {
+    public NewUserRequest(String email, String username, String password) {
         this.email = email;
         this.username = username;
         this.password = password;
-        this.rememberMe = rememberMe;
+    }
+
+    public NewUserRequest(String email, String username, String password, File avatar, Set<Subject> hasAccess) {
+        this.email = email;
+        this.username = username;
+        this.password = password;
         this.avatar = avatar;
         this.hasAccess = hasAccess;
     }
@@ -51,14 +55,6 @@ public class NewUserRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public Boolean isRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 
     public File getAvatar() {

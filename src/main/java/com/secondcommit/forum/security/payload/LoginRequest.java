@@ -12,7 +12,7 @@ public class LoginRequest {
     public LoginRequest() {
     }
 
-    public LoginRequest(String username, String password, boolean rememberMe) {
+    public LoginRequest(String username, String password, Boolean rememberMe) {
         this.username = username;
         this.password = password;
         this.rememberMe = rememberMe;

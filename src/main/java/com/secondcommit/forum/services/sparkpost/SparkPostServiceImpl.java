@@ -6,12 +6,14 @@ import com.secondcommit.forum.security.payload.MessageResponse;
 import com.sparkpost.Client;
 import com.sparkpost.exception.SparkPostException;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 
 import java.util.Random;
 
 /**
  * Service that manages SparKPost (to send emails)
  */
+@Service
 public class SparkPostServiceImpl implements SparkPostService{
 
     private final String API_KEY = System.getenv("SPARK_API_KEY");

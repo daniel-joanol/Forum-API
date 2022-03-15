@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -68,22 +69,27 @@ public class UserServiceImpl implements UserService{
         User user = new User();
 
         Set<Role> roles = new HashSet<>();
-        roles.add(roleRepository.findByName("USER").get());
+
+        List<Role> rolesRepo = roleRepository.findAll();
+        for (Role role : rolesRepo){
+            if (role.getName().equalsIgnoreCase("ROLE_USER"))
+                roles.add(role);
+        }
 
         //Creates user without avatar nor hasAccess(subject)
         if (newUser.getAvatar() == null && newUser.getHasAccess() == null)
             user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), newUser.isRememberMe(), roles);
+                    encoder.encode(newUser.getPassword()), roles);
 
         //Creates user without avatar but with hasAccess(subject)
         if (newUser.getAvatar() == null && newUser.getHasAccess() != null)
             user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), newUser.isRememberMe(), roles, newUser.getHasAccess());
+                    encoder.encode(newUser.getPassword()), roles, newUser.getHasAccess());
 
         //Creates user with avatar but without hasAccess(subject)
         if (newUser.getAvatar() != null && newUser.getHasAccess() == null)
             user = new User(newUser.getEmail(), newUser.getUsername(), encoder.encode(newUser.getPassword()),
-                    newUser.isRememberMe(), roles, newUser.getAvatar());
+                    roles, newUser.getAvatar());
 
         //Saves the user in the database
         userRepository.save(user);

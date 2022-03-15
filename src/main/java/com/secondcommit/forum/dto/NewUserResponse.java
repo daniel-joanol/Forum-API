@@ -14,7 +14,6 @@ public class NewUserResponse {
     private Long id;
     private String email;
     private String username;
-    private Boolean rememberMe;
     private File avatar;
     private Set<Subject> hasAccess;
     private boolean isActivated;
@@ -24,12 +23,11 @@ public class NewUserResponse {
     public NewUserResponse() {
     }
 
-    public NewUserResponse(Long id, String email, String username, Boolean rememberMe, File avatar, Set<Subject> hasAccess,
+    public NewUserResponse(Long id, String email, String username, File avatar, Set<Subject> hasAccess,
                            boolean isActivated, Set<Subject> followsSubject, Set<Post> followsPost) {
         this.id = id;
         this.email = email;
         this.username = username;
-        this.rememberMe = rememberMe;
         this.avatar = avatar;
         this.hasAccess = hasAccess;
         this.isActivated = isActivated;
@@ -59,14 +57,6 @@ public class NewUserResponse {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Boolean getRememberMe() {
-        return rememberMe;
-    }
-
-    public void setRememberMe(Boolean rememberMe) {
-        this.rememberMe = rememberMe;
     }
 
     public File getAvatar() {

@@ -1,7 +1,5 @@
 package com.secondcommit.forum.services.authentication;
 
-import com.secondcommit.forum.dto.NewUserRequest;
-import com.secondcommit.forum.entities.Role;
 import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.RoleRepository;
 import com.secondcommit.forum.repositories.UserRepository;
@@ -12,10 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Implementation of the Authentication Service Interface
