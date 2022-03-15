@@ -16,7 +16,7 @@ import java.util.Random;
 @Service
 public class SparkPostServiceImpl implements SparkPostService{
 
-    private final String API_KEY = System.getenv("SPARK_API_KEY");
+    private final String API_KEY = System.getenv("SPARK_POST_API");
     Client client = new Client(API_KEY);
 
     private UserRepository userRepository;
@@ -63,7 +63,7 @@ public class SparkPostServiceImpl implements SparkPostService{
      * @throws SparkPostException
      */
     @Override
-    public ResponseEntity<?> sendWelcomeMessage(User user) throws SparkPostException {
+    public void sendWelcomeMessage(User user) throws SparkPostException {
         try {
             client.sendMessage(
                     "contacto@ob.danieljoanol.com",
@@ -74,8 +74,6 @@ public class SparkPostServiceImpl implements SparkPostService{
         } catch (SparkPostException e){
             e.printStackTrace();
         }
-
-        return ResponseEntity.ok().body(new MessageResponse("Your account has been activated with success"));
     }
 
     /**
@@ -111,7 +109,7 @@ public class SparkPostServiceImpl implements SparkPostService{
     }
 
     @Override
-    public ResponseEntity<?> sendChangedPassMessage(User user) throws SparkPostException {
+    public void sendChangedPassMessage(User user) throws SparkPostException {
         try {
             client.sendMessage(
                     "contacto@ob.danieljoanol.com",
@@ -122,8 +120,6 @@ public class SparkPostServiceImpl implements SparkPostService{
         } catch (SparkPostException e){
             e.printStackTrace();
         }
-
-        return ResponseEntity.ok().body(new MessageResponse("Your password has been changed with success"));
     }
 
     @Override

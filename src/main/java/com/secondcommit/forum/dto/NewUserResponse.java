@@ -11,6 +11,7 @@ import java.util.Set;
  */
 public class NewUserResponse {
 
+    private String message = "Check your email account";
     private Long id;
     private String email;
     private String username;
@@ -33,6 +34,14 @@ public class NewUserResponse {
         this.isActivated = isActivated;
         this.followsSubject = followsSubject;
         this.followsPost = followsPost;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public Long getId() {

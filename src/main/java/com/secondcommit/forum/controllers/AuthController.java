@@ -69,12 +69,12 @@ public class AuthController {
         //If the user doesn't exist, returns bad request
         if (userOpt.isEmpty())
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + userOpt.get().getUsername() + "doesn't exist"));
+                    .body(new MessageResponse("The user " + userOpt.get().getUsername() + " doesn't exist"));
 
         //If the user isn't activated yet, the login won't work
         if (!userOpt.get().isActivated())
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + userOpt.get().getUsername() + "isn't validated yet"));
+                    .body(new MessageResponse("The user " + userOpt.get().getUsername() + " isn't validated yet"));
 
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -147,7 +147,7 @@ public class AuthController {
 
         if (userOpt.isEmpty())
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The email" + forgotPass.getEmail() + " isn't registered"));
+                    .body(new MessageResponse("The email " + forgotPass.getEmail() + " isn't registered"));
 
         return authService.askNewPass(userOpt.get());
     }

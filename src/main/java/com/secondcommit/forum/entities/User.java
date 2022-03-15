@@ -27,13 +27,13 @@ public class User {
     private String password;
 
     @Column
-    private boolean isActivated = false;
+    private Boolean isActivated = false;
 
     @Column
-    private int validationCode;
+    private Integer validationCode;
 
     @Column
-    private int activationCode;
+    private Integer activationCode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_AVATAR",
@@ -214,27 +214,27 @@ public class User {
         followsPost.add(post);
     }
 
-    public boolean isActivated() {
+    public Boolean isActivated() {
         return isActivated;
     }
 
-    public void setActivated(boolean activated) {
+    public void setActivated(Boolean activated) {
         isActivated = activated;
     }
 
-    public int getValidationCode() {
+    public Integer getValidationCode() {
         return validationCode;
     }
 
-    public void setValidationCode(int validationCode) {
+    public void setValidationCode(Integer validationCode) {
         this.validationCode = validationCode;
     }
 
-    public int getActivationCode() {
+    public Integer getActivationCode() {
         return activationCode;
     }
 
-    public void setActivationCode(int activationCode) {
+    public void setActivationCode(Integer activationCode) {
         this.activationCode = activationCode;
     }
 

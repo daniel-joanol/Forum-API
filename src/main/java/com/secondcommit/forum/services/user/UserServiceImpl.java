@@ -13,10 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of the User Service Interface
@@ -56,13 +53,13 @@ public class UserServiceImpl implements UserService{
         Optional<User> userOpt = userRepository.findByUsername(newUser.getUsername());
 
         if (userOpt.isPresent())
-            ResponseEntity.badRequest()
+            return ResponseEntity.badRequest()
                     .body(new MessageResponse("The username " + newUser.getUsername() + " is already being used" ));
 
         userOpt = userRepository.findByEmail(newUser.getEmail());
 
         if (userOpt.isPresent())
-            ResponseEntity.badRequest()
+            return ResponseEntity.badRequest()
                     .body(new MessageResponse("The email " + newUser.getEmail() + " is already being used" ));
 
         //If it gets here, the validations were ok, so we create a new user
@@ -71,10 +68,8 @@ public class UserServiceImpl implements UserService{
         Set<Role> roles = new HashSet<>();
 
         List<Role> rolesRepo = roleRepository.findAll();
-        for (Role role : rolesRepo){
-            if (role.getName().equalsIgnoreCase("ROLE_USER"))
-                roles.add(role);
-        }
+        Optional<Role> role = roleRepository.findByName("USER");
+        roles.add(role.get());
 
         //Creates user without avatar nor hasAccess(subject)
         if (newUser.getAvatar() == null && newUser.getHasAccess() == null)
@@ -113,12 +108,12 @@ public class UserServiceImpl implements UserService{
     @Override
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
 
-        if (activationCode == user.getValidationCode()) {
+        if (activationCode.intValue() == user.getActivationCode().intValue()) {
             user.setActivated(true);
             userRepository.save(user);
         } else {
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The validation code is wrong"));
+                    .body(new MessageResponse("The activation code is wrong"));
         }
 
         //Sends an email with a welcome message
@@ -129,6 +124,6 @@ public class UserServiceImpl implements UserService{
         }
 
         return ResponseEntity.ok()
-                .body(user.getDtoFromUser());
+                .body(new MessageResponse("Your account has been activated with success"));
     }
 }

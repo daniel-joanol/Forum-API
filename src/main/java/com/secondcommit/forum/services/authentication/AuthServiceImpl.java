@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
     public ResponseEntity<?> setNewPass(User user, String newPass, Integer validationCode) {
 
         //Validates the code
-        if (validationCode != user.getValidationCode())
+        if (validationCode.intValue() != user.getValidationCode().intValue())
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Wrong validation code"));
 
