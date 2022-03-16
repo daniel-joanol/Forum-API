@@ -193,7 +193,8 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Updates User (only username, email and isActivated). Sends an alert email
+     * Updates User (only username, email, isActivated, hasAccess(Set<Subject>)
+     * Sends an alert email after the update
      * @param id
      * @param userDto
      * @return User
@@ -212,6 +213,9 @@ public class UserServiceImpl implements UserService{
 
         if (userDto.getActivated() != null)
             userOpt.get().setActivated(userDto.getActivated());
+
+        if (userDto.getHasAccess() != null)
+            userOpt.get().setHasAccess(userDto.getHasAccess());
 
         userRepository.save(userOpt.get());
 

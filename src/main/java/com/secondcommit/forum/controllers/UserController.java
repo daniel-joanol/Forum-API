@@ -36,7 +36,7 @@ public class UserController {
      */
     @PostMapping("/new-user")
     @ApiOperation("Creates new user")
-    public ResponseEntity<?> newUSer(@RequestBody NewUserRequest newUser){
+        public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUser){
 
         //Validates the DTO
         if (newUser.getUsername() != null &&

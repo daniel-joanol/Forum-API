@@ -17,6 +17,9 @@ public class Subject {
     @Column
     private String name;
 
+    @Column
+    private Integer totalModules = 0;
+
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "SUBJECT_AVATAR",
             joinColumns = {
@@ -63,6 +66,14 @@ public class Subject {
         this.name = name;
     }
 
+    public Integer getTotalModules() {
+        return totalModules;
+    }
+
+    public void setTotalModules(Integer totalModules) {
+        this.totalModules = totalModules;
+    }
+
     public File getAvatar() {
         return avatar;
     }
@@ -81,9 +92,11 @@ public class Subject {
 
     public void addModule(Module module){
         modules.add(module);
+        totalModules = modules.size();
     }
 
     public void removeModule(Module module){
         modules.remove(module);
+        totalModules = modules.size();
     }
 }

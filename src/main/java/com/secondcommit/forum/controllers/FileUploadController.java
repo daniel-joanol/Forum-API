@@ -3,7 +3,7 @@ package com.secondcommit.forum.controllers;
 import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
-import com.secondcommit.forum.services.subject.SubjectService;
+import com.secondcommit.forum.services.subject.SubjectServiceImpl;
 import com.secondcommit.forum.services.user.UserServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
@@ -23,10 +23,10 @@ import java.util.Optional;
 public class FileUploadController {
 
     private final UserServiceImpl userService;
-    private final SubjectService.SubjectServiceImpl subjectService;
+    private final SubjectServiceImpl subjectService;
     private final SubjectRepository subjectRepository;
 
-    public FileUploadController(UserServiceImpl userService, SubjectService.SubjectServiceImpl subjectService,
+    public FileUploadController(UserServiceImpl userService, SubjectServiceImpl subjectService,
                                 SubjectRepository subjectRepository) {
         this.userService = userService;
         this.subjectService = subjectService;
