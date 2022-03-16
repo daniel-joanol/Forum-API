@@ -4,8 +4,10 @@ import com.secondcommit.forum.dto.NewUserRequest;
 import com.secondcommit.forum.dto.UpdateUserDto;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Role;
+import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.RoleRepository;
+import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
@@ -32,6 +34,9 @@ public class UserServiceImpl implements UserService{
     private final RoleRepository roleRepository;
 
     @Autowired
+    private final SubjectRepository subjectRepository;
+
+    @Autowired
     private final PasswordEncoder encoder;
 
     @Autowired
@@ -42,12 +47,13 @@ public class UserServiceImpl implements UserService{
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                            PasswordEncoder encoder, SparkPostServiceImpl sparkPost,
-                           CloudinaryServiceImpl cloudinary) {
+                           CloudinaryServiceImpl cloudinary, SubjectRepository subjectRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.encoder = encoder;
         this.sparkPost = sparkPost;
         this.cloudinary = cloudinary;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -81,14 +87,23 @@ public class UserServiceImpl implements UserService{
         roles.add(role.get());
 
         //Creates user without hasAccess(subject)
-        if (newUser.getHasAccess() == null)
+        if (newUser.getHasAccess() == null){
             user = new User(newUser.getEmail(), newUser.getUsername(),
                     encoder.encode(newUser.getPassword()), roles);
+        }
 
         //Creates user with hasAccess(subject)
-        if (newUser.getHasAccess() != null)
+        if (newUser.getHasAccess() != null) {
+
+            Set<Subject> validSubjects = new HashSet<>();
+            for (Subject subject : newUser.getHasAccess()) {
+                if (subjectRepository.existsByName(subject.getName()))
+                    validSubjects.add(subject);
+            }
+
             user = new User(newUser.getEmail(), newUser.getUsername(),
                     encoder.encode(newUser.getPassword()), roles, newUser.getHasAccess());
+        }
 
         //Saves the user in the database
         userRepository.save(user);
