@@ -1,6 +1,5 @@
 package com.secondcommit.forum.dto;
 
-import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Post;
 import com.secondcommit.forum.entities.Subject;
 
@@ -9,22 +8,22 @@ import java.util.Set;
 /**
  * DTO with the response data sent after the creation of a new user
  */
-public class NewUserResponse {
+public class UserResponseDto {
 
     private String message = "Check your email account";
     private Long id;
     private String email;
     private String username;
-    private File avatar;
+    private String avatar;
     private Set<Subject> hasAccess;
     private boolean isActivated;
     private Set<Subject> followsSubject;
     private Set<Post> followsPost;
 
-    public NewUserResponse() {
+    public UserResponseDto() {
     }
 
-    public NewUserResponse(Long id, String email, String username, File avatar, Set<Subject> hasAccess,
+    public UserResponseDto(Long id, String email, String username, String avatar, Set<Subject> hasAccess,
                            boolean isActivated, Set<Subject> followsSubject, Set<Post> followsPost) {
         this.id = id;
         this.email = email;
@@ -68,11 +67,11 @@ public class NewUserResponse {
         this.username = username;
     }
 
-    public File getAvatar() {
+    public String getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(File avatar) {
+    public void setAvatar(String avatar) {
         this.avatar = avatar;
     }
 

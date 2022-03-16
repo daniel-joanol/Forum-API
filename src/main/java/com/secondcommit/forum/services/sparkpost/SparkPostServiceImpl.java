@@ -123,6 +123,34 @@ public class SparkPostServiceImpl implements SparkPostService{
     }
 
     @Override
+    public void sendUserUpdatedMessage(User user) throws SparkPostException {
+        try {
+            client.sendMessage(
+                    "contacto@ob.danieljoanol.com",
+                    user.getEmail(),
+                    "User updated!",
+                    "Hi, " + user.getUsername() + ". Your credentials have been updated with success",
+                    "Hi, " + user.getUsername() + ". Your credentials have been updated with success");
+        } catch (SparkPostException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void sendUserRemovedMessage(User user) throws SparkPostException {
+        try {
+            client.sendMessage(
+                    "contacto@ob.danieljoanol.com",
+                    user.getEmail(),
+                    "User deleted!",
+                    "Hi, " + user.getUsername() + ". Your credential have been removed from our database with success",
+                    "Hi, " + user.getUsername() + ". Your credential have been removed from our database with success");
+        } catch (SparkPostException e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
     public int randomNumber() {
         Random random = new Random();
         return random.nextInt(1000000);

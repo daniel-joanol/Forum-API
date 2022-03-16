@@ -1,7 +1,7 @@
 package com.secondcommit.forum.dto;
 
-import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Subject;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
@@ -13,7 +13,6 @@ public class NewUserRequest {
     private String email;
     private String username;
     private String password;
-    private File avatar;
     private Set<Subject> hasAccess;
 
     public NewUserRequest() {
@@ -25,11 +24,10 @@ public class NewUserRequest {
         this.password = password;
     }
 
-    public NewUserRequest(String email, String username, String password, File avatar, Set<Subject> hasAccess) {
+    public NewUserRequest(String email, String username, String password, Set<Subject> hasAccess) {
         this.email = email;
         this.username = username;
         this.password = password;
-        this.avatar = avatar;
         this.hasAccess = hasAccess;
     }
 
@@ -55,14 +53,6 @@ public class NewUserRequest {
 
     public void setPassword(String password) {
         this.password = password;
-    }
-
-    public File getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(File avatar) {
-        this.avatar = avatar;
     }
 
     public Set<Subject> getHasAccess() {
