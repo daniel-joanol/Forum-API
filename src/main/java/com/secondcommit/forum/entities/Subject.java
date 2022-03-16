@@ -17,7 +17,13 @@ public class Subject {
     @Column
     private String name;
 
-    @OneToOne(mappedBy = "subject")
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "SUBJECT_AVATAR",
+            joinColumns = {
+                    @JoinColumn(name = "SUBJECT_ID")
+            },
+            inverseJoinColumns = {
+                    @JoinColumn(name = "AVATAR_ID") })
     private File avatar;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
