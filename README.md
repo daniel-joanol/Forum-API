@@ -5,6 +5,7 @@ posts can be created, answered, fixed, evaluated (like or dislike) and followed,
 answers.
 
 I also use:
+- Swagger for documentation;
 - JPA for persistence;
 - JWT for authentication;
 - SparkPost to send emails;
