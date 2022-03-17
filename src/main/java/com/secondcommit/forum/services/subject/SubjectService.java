@@ -14,5 +14,5 @@ public interface SubjectService {
     ResponseEntity<?> addAvatarToSubject(Subject subject, MultipartFile avatar);
     ResponseEntity<?> getSubject(Long id);
     ResponseEntity<?> updateSubject(Long id, SubjectDto subjectDto);
-    public ResponseEntity<?> deleteSubject(Long id);
+    ResponseEntity<?> deleteSubject(Long id);
 }

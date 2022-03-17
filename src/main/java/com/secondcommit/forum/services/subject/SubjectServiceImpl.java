@@ -24,13 +24,13 @@ import java.util.Set;
 public class SubjectServiceImpl implements SubjectService {
 
     @Autowired
-    private SubjectRepository subjectRepository;
+    private final SubjectRepository subjectRepository;
 
     @Autowired
-    private CloudinaryServiceImpl cloudinary;
+    private final CloudinaryServiceImpl cloudinary;
 
     @Autowired
-    private ModuleRepository moduleRepository;
+    private final ModuleRepository moduleRepository;
 
     public SubjectServiceImpl(SubjectRepository subjectRepository, CloudinaryServiceImpl cloudinary,
                               ModuleRepository moduleRepository) {
@@ -46,6 +46,13 @@ public class SubjectServiceImpl implements SubjectService {
      */
     @Override
     public ResponseEntity<?> addSubject(SubjectDto subjectDto) {
+        //Tests if it already exists
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isPresent())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The subject " + subjectDto.getName() + " is already registered"));
+
         Subject subject = new Subject(subjectDto.getName());
 
         //Tests if it has Modules
@@ -127,7 +134,8 @@ public class SubjectServiceImpl implements SubjectService {
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Updates name
-        subjectOpt.get().setName(subjectDto.getName());
+        if (subjectDto.getName() != null)
+            subjectOpt.get().setName(subjectDto.getName());
 
         //Tests if it has Modules
         if (subjectDto.getModules() != null){

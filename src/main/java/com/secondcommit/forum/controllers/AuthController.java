@@ -1,9 +1,7 @@
 package com.secondcommit.forum.controllers;
 
-import com.secondcommit.forum.dto.ActivateUserRequest;
 import com.secondcommit.forum.dto.ForgotPassRequest;
 import com.secondcommit.forum.dto.NewPassRequest;
-import com.secondcommit.forum.dto.NewUserRequest;
 import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.jwt.JwtTokenUtil;

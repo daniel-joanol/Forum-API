@@ -21,10 +21,15 @@ public class SubjectController {
         this.subjectService = subjectService;
     }
 
+    /**
+     * Creates a new subject from subjectDto
+     * @param subjectDto
+     * @return ResponseEntity<Subject>
+     */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/")
     @ApiOperation("Creates new subject")
-    public ResponseEntity<?> newUSer(@RequestBody SubjectDto subjectDto){
+    public ResponseEntity<?> newSubject(@RequestBody SubjectDto subjectDto){
 
         if (subjectDto.getName() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
@@ -32,6 +37,11 @@ public class SubjectController {
         return subjectService.addSubject(subjectDto);
     }
 
+    /**
+     * Gets all subject data
+     * @param id
+     * @return ResponseEntity<Subject>
+     */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
     @ApiOperation("Gets all subject data")
@@ -50,7 +60,7 @@ public class SubjectController {
     @ApiOperation("Updates subject data")
     public ResponseEntity<?> updateSubject(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
 
-        if (subjectDto.getName() == null)
+        if (subjectDto.getName() == null && subjectDto.getModules() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
         return subjectService.updateSubject(id, subjectDto);
@@ -62,7 +72,7 @@ public class SubjectController {
      * @return ResponseEntity
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PutMapping("/{id}")
+    @DeleteMapping("/{id}")
     @ApiOperation("Deletes subject")
     public ResponseEntity<?> deleteSubject(@PathVariable Long id){
         return subjectService.deleteSubject(id);
