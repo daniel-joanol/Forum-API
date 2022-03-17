@@ -127,7 +127,7 @@ public class UserServiceImpl implements UserService{
     @Override
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
 
-        if (activationCode.intValue() == user.getActivationCode().intValue()) {
+        if (user.getActivationCode() != null && activationCode.intValue() == user.getActivationCode().intValue()) {
             user.setActivated(true);
             userRepository.save(user);
         } else {

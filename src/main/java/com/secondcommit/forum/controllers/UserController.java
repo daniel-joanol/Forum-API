@@ -30,50 +30,6 @@ public class UserController {
     }
 
     /**
-     * Method to create a new user
-     * @param newUser
-     * @return ResponseEntity
-     */
-    @PostMapping("/new-user")
-    @ApiOperation("Creates new user")
-        public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUser){
-
-        //Validates the DTO
-        if (newUser.getUsername() != null &&
-                newUser.getEmail() != null &&
-                newUser.getPassword() != null)
-            return userService.createUser(newUser);
-
-        return ResponseEntity.badRequest()
-                .body(new MessageResponse("Missing parameters"));
-    }
-
-    /**
-     * Method to activate the user
-     * * The user won't be able to log in before activating the account!
-     *
-     * @param activateUser
-     * @return ResponseEntity
-     */
-    @PostMapping("/activate-user")
-    @ApiOperation("Activates the new user")
-    public ResponseEntity<?> activateUser(@RequestBody ActivateUserRequest activateUser){
-
-        //Validates the DTO
-        if (activateUser.getUsername() == null || activateUser.getActivationCode() == null)
-            return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
-
-        //Validates de user
-        Optional<User> userOpt = userRepository.findByUsername(activateUser.getUsername());
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user" + activateUser.getUsername() + " doesn't exist"));
-
-        return userService.activateUser(userOpt.get(), activateUser.getActivationCode());
-    }
-
-    /**
      * Gets the user data
      * @param id
      * @return ResponseEntity (with the User or an error message)

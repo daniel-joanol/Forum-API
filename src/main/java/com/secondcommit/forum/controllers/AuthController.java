@@ -1,7 +1,9 @@
 package com.secondcommit.forum.controllers;
 
+import com.secondcommit.forum.dto.ActivateUserRequest;
 import com.secondcommit.forum.dto.ForgotPassRequest;
 import com.secondcommit.forum.dto.NewPassRequest;
+import com.secondcommit.forum.dto.NewUserRequest;
 import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.jwt.JwtTokenUtil;
@@ -81,6 +83,50 @@ public class AuthController {
         String jwt = jwtTokenUtil.generateJwtToken(authentication, loginRequest.isRememberMe());
 
         return ResponseEntity.ok(new JwtResponse(jwt));
+    }
+
+    /**
+     * Method to create a new user
+     * @param newUser
+     * @return ResponseEntity
+     */
+    @PostMapping("/new-user")
+    @ApiOperation("Creates new user")
+    public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUser){
+
+        //Validates the DTO
+        if (newUser.getUsername() != null &&
+                newUser.getEmail() != null &&
+                newUser.getPassword() != null)
+            return userService.createUser(newUser);
+
+        return ResponseEntity.badRequest()
+                .body(new MessageResponse("Missing parameters"));
+    }
+
+    /**
+     * Method to activate the user
+     * * The user won't be able to log in before activating the account!
+     *
+     * @param activateUser
+     * @return ResponseEntity
+     */
+    @PostMapping("/activate-user")
+    @ApiOperation("Activates the new user")
+    public ResponseEntity<?> activateUser(@RequestBody ActivateUserRequest activateUser){
+
+        //Validates the DTO
+        if (activateUser.getUsername() == null || activateUser.getActivationCode() == null)
+            return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
+
+        //Validates de user
+        Optional<User> userOpt = userRepository.findByUsername(activateUser.getUsername());
+
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user" + activateUser.getUsername() + " doesn't exist"));
+
+        return userService.activateUser(userOpt.get(), activateUser.getActivationCode());
     }
 
     /**
