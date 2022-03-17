@@ -12,4 +12,6 @@ public interface PostService {
     ResponseEntity<?> getPost(Long id);
     ResponseEntity<?> updatePost(Long id, PostDto postDto, String username);
     ResponseEntity<?> deletePost(Long id, String username);
+    ResponseEntity<?> like(Long id, String username);
+    ResponseEntity<?> dislike(Long id, String username);
 }

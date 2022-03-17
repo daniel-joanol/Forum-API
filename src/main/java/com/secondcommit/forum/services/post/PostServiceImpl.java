@@ -127,7 +127,7 @@ public class PostServiceImpl implements PostService{
     }
 
     /**
-     * Methos to delete the post. Only authors and admins are allowed
+     * Methot to delete the post. Only authors and admins are allowed
      * @param id
      * @param username (takes the username from the jwt token)
      * @return ResponseEntity (ok: post, bad request: messageResponse)
@@ -164,5 +164,102 @@ public class PostServiceImpl implements PostService{
         postRepository.delete(postOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Post " + id + " deleted with success"));
+    }
+
+    /**
+     * Method to add a like to the post. If the user has already liked the post, just removes the like
+     * @param id
+     * @param username
+     * @return ResponseEntity(ok: totalLikes, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> like(Long id, String username) {
+
+        //Validates the id
+        Optional<Post> postOpt = postRepository.findById(id);
+
+        if (postOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        //Tests if this user exists
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user " + username + " doesn't exist"));
+
+        //Tests it the user hasn't already liked the post
+        boolean alreadyLiked = false;
+
+        for (User user : postOpt.get().getUsersWhoLike()){
+            if (userOpt.get() == user) alreadyLiked = true;
+        }
+
+        if (alreadyLiked){
+            //Removes like
+            postOpt.get().removeUsersWhoLike(userOpt.get());
+        } else {
+
+            //Adds like
+            postOpt.get().addUsersWhoLike(userOpt.get());
+
+            //Removes from dislike
+            for (User user : postOpt.get().getUsersWhoDislike()){
+                if (userOpt.get() == user) postOpt.get().removeUsersWhoDislike(userOpt.get());
+            }
+
+        }
+
+        postRepository.save(postOpt.get());
+
+        return ResponseEntity.ok(postOpt.get().getLikes());
+    }
+
+    /**
+     * Method to add a dislike to the post. If the user has already disliked the post, just removes the dislike
+     * @param id
+     * @param username
+     * @return ResponseEntity(ok: totalLikes, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> dislike(Long id, String username) {
+
+        //Validates the id
+        Optional<Post> postOpt = postRepository.findById(id);
+
+        if (postOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        //Tests if this user exists
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user " + username + " doesn't exist"));
+
+        //Tests it the user hasn't already disliked the post
+        boolean alreadyDisliked = false;
+
+        for (User user : postOpt.get().getUsersWhoDislike()){
+            if (userOpt.get() == user) alreadyDisliked = true;
+        }
+
+        if (alreadyDisliked){
+            //Removes dislike
+            postOpt.get().removeUsersWhoDislike(userOpt.get());
+        } else {
+
+            //Adds dislike
+            postOpt.get().addUsersWhoDislike(userOpt.get());
+
+            //Removes from like
+            for (User user : postOpt.get().getUsersWhoLike()){
+                if (userOpt.get() == user) postOpt.get().removeUsersWhoLike(userOpt.get());
+            }
+        }
+
+        postRepository.save(postOpt.get());
+
+        return ResponseEntity.ok(postOpt.get().getDislikes());
     }
 }
