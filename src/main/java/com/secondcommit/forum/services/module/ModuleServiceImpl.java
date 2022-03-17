@@ -24,9 +24,9 @@ public class ModuleServiceImpl implements ModuleService{
     }
 
     /**
-     * Creates a new module from moduleDto
+     * Method to create a new module from moduleDto
      * @param moduleDto
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> addModule(ModuleDto moduleDto) {
@@ -46,9 +46,9 @@ public class ModuleServiceImpl implements ModuleService{
     }
 
     /**
-     * Method that gets the module
+     * Method to get the module
      * @param id
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getModule(Long id) {
@@ -63,10 +63,10 @@ public class ModuleServiceImpl implements ModuleService{
     }
 
     /**
-     * Updates module from moduleDto
+     * Method to update module from moduleDto
      * @param id
      * @param moduleDto
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity(ok: module, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> updateModule(Long id, ModuleDto moduleDto) {
@@ -77,6 +77,7 @@ public class ModuleServiceImpl implements ModuleService{
         if (moduleOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
+        //Updates the module
         if (moduleDto.getName() != null)
             moduleOpt.get().setName(moduleDto.getName());
 
@@ -89,7 +90,7 @@ public class ModuleServiceImpl implements ModuleService{
     }
 
     /**
-     * Delete module
+     * Method to delete module
      * @param id
      * @return ResponseEntity
      */
