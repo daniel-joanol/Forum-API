@@ -1,6 +1,7 @@
 package com.secondcommit.forum.services.post;
 
 import com.secondcommit.forum.dto.PostDto;
+import com.secondcommit.forum.entities.Answer;
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -14,4 +15,5 @@ public interface PostService {
     ResponseEntity<?> deletePost(Long id, String username);
     ResponseEntity<?> like(Long id, String username);
     ResponseEntity<?> dislike(Long id, String username);
+    ResponseEntity<?> fix(Long id);
 }

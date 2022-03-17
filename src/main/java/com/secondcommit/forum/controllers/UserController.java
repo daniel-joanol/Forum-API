@@ -1,9 +1,6 @@
 package com.secondcommit.forum.controllers;
 
-import com.secondcommit.forum.dto.ActivateUserRequest;
-import com.secondcommit.forum.dto.NewUserRequest;
 import com.secondcommit.forum.dto.UpdateUserDto;
-import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.user.UserServiceImpl;
@@ -11,8 +8,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 /**
  *  Controller to manage the User CRUD
@@ -32,7 +27,7 @@ public class UserController {
     /**
      * Gets the user data
      * @param id
-     * @return ResponseEntity (with the User or an error message)
+     * @return ResponseEntity (ok: user, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")

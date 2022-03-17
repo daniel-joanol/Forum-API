@@ -262,4 +262,30 @@ public class PostServiceImpl implements PostService{
 
         return ResponseEntity.ok(postOpt.get().getDislikes());
     }
+
+    /**
+     * Method to fix or unfix a post
+     * @param id
+     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> fix(Long id) {
+
+        //Validates the id
+        Optional<Post> postOpt = postRepository.findById(id);
+
+        if (postOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        //Fix or unfix the post
+        if (postOpt.get().isFixed()){
+            postOpt.get().setFixed(false);
+        } else {
+            postOpt.get().setFixed(true);
+        }
+
+        postRepository.save(postOpt.get());
+
+        return ResponseEntity.ok(postOpt.get());
+    }
 }
