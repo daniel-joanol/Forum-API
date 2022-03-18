@@ -64,4 +64,7 @@ public class UserController {
     public ResponseEntity<?> deleteUser(@PathVariable Long id){
         return userService.deleteUser(id);
     }
+
+    //TODO: add methods addAccess and removeAccess
+    //TODO: review credentials, so only the owner or an admin can use this methods
 }

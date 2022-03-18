@@ -86,23 +86,17 @@ public class UserServiceImpl implements UserService{
         Optional<Role> role = roleRepository.findByName("USER");
         roles.add(role.get());
 
-        //Creates user without hasAccess(subject)
-        if (newUser.getHasAccess() == null){
-            user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), roles);
-        }
+        //Validates subjects
+        Set<Subject> validSubjects = new HashSet<>();
 
-        //Creates user with hasAccess(subject)
-        if (newUser.getHasAccess() != null) {
-
-            Set<Subject> validSubjects = new HashSet<>();
-            for (Subject subject : newUser.getHasAccess()) {
-                if (subjectRepository.existsByName(subject.getName()))
+        if (newUser.getHasAccess() != null){
+            for (Subject subject : newUser.getHasAccess()){
+                if (subjectRepository.equals(subject))
                     validSubjects.add(subject);
             }
 
             user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), roles, newUser.getHasAccess());
+                    encoder.encode(newUser.getPassword()), roles, validSubjects);
         }
 
         //Saves the user in the database
@@ -208,17 +202,28 @@ public class UserServiceImpl implements UserService{
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("The user id " + id + " doesn't exist!"));
 
+        //Starts updating
         userOpt.get().setUsername(userDto.getUsername());
         userOpt.get().setEmail(userDto.getEmail());
 
         if (userDto.getActivated() != null)
             userOpt.get().setActivated(userDto.getActivated());
 
-        if (userDto.getHasAccess() != null)
-            userOpt.get().setHasAccess(userDto.getHasAccess());
+        //Validates subjects
+        Set<Subject> validSubjects = new HashSet<>();
+
+        if (userDto.getHasAccess() != null){
+            for (Subject subject : userDto.getHasAccess()){
+                if (subjectRepository.equals(subject))
+                    validSubjects.add(subject);
+            }
+
+            userOpt.get().setHasAccess(validSubjects);
+        }
 
         userRepository.save(userOpt.get());
 
+        //Sends an email to the user
         try {
             sparkPost.sendUserUpdatedMessage(userOpt.get());
         } catch (Exception e){
@@ -244,6 +249,7 @@ public class UserServiceImpl implements UserService{
 
         userRepository.delete(userOpt.get());
 
+        //Sends an email to the user
         try {
             sparkPost.sendUserRemovedMessage(userOpt.get());
         } catch (Exception e){
@@ -251,5 +257,86 @@ public class UserServiceImpl implements UserService{
         }
 
         return ResponseEntity.ok().body(new MessageResponse("User " + id + " deleted with success"));
+    }
+
+    /**
+     * Method to add access to one subject
+     * @param id
+     * @param subject
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> addAccess(Long id, Subject subject, String username) {
+
+        //Validates User
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to update, checks to see if the user is ADMIN
+        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userOpt.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
+        }
+
+        //Validates Subject
+        if (!subjectRepository.equals(subject))
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        userOpt.get().addAccess(subject);
+        userRepository.save(userOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+    }
+
+    /**
+     * Method to remove access to a subject
+     * @param id
+     * @param subject
+     * @param username (gets from the jwt token)
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> removeAccess(Long id, Subject subject, String username) {
+
+        //Validates User
+        Optional<User> userOpt = userRepository.findById(id);
+        if (userOpt.isEmpty())
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to update, checks to see if the user is ADMIN
+        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userOpt.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
+        }
+
+        //Validates Subject
+        if (!userOpt.get().getHasAccess().contains(subject))
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        userOpt.get().removeAccess(subject);
+        userRepository.save(userOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
     }
 }

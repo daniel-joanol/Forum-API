@@ -1,7 +1,6 @@
 package com.secondcommit.forum.services.post;
 
 import com.secondcommit.forum.dto.PostDto;
-import com.secondcommit.forum.entities.Answer;
 import org.springframework.http.ResponseEntity;
 
 /**

@@ -47,7 +47,7 @@ public class PostController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets all user data")
+    @ApiOperation("Gets POST")
     public ResponseEntity<?> getPost(@PathVariable Long id){
         return postService.getPost(id);
     }
@@ -55,11 +55,50 @@ public class PostController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     @ApiOperation("Updates the post")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDto postDto, @CurrentSecurityContext(expression="authentication?.name") String username){
+    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDto postDto,
+                                        @CurrentSecurityContext(expression="authentication?.name") String username){
 
+        //Validates Dto
         if (postDto.getTitle() == null && postDto.getContent() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing"));
 
         return postService.updatePost(id, postDto, username);
+    }
+
+    /**
+     * Method to delete post
+     * @param id
+     * @param username (Gets from the jwt token)
+     * @return ResponseEntity
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @DeleteMapping("/{id}")
+    @ApiOperation("Deletes the post")
+    public ResponseEntity<?> deletePost(Long id,
+                                        @CurrentSecurityContext(expression="authentication?.name") String username){
+        return postService.deletePost(id, username);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/like/{id}")
+    @ApiOperation("Adds or removes like, depending on the previous state")
+    public ResponseEntity<?> like(Long id,
+                                        @CurrentSecurityContext(expression="authentication?.name") String username){
+        return postService.like(id, username);
+    }
+
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/dislike/{id}")
+    @ApiOperation("Adds or removes dislike, depending on the previous state")
+    public ResponseEntity<?> dislike(Long id,
+                                  @CurrentSecurityContext(expression="authentication?.name") String username){
+        return postService.dislike(id, username);
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/fix/{id}")
+    @ApiOperation("Fix post. Only admins are allowed")
+    public ResponseEntity<?> fix(Long id){
+        return postService.fix(id);
     }
 }

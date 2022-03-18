@@ -101,6 +101,7 @@ public class PostServiceImpl implements PostService{
                     .body(new MessageResponse("The user " + username + " doesn't exist"));
 
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to update, checks to see if the user is ADMIN
         if (postOpt.get().getAuthor() != userOpt.get()){
 
             boolean isAdmin = false;
