@@ -1,6 +1,6 @@
 package com.secondcommit.forum.entities;
 
-import com.secondcommit.forum.dto.NewUserResponse;
+import com.secondcommit.forum.dto.UserResponseDto;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -33,6 +33,7 @@ public class User {
     private Integer validationCode;
 
     @Column
+
     private Integer activationCode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -248,9 +249,14 @@ public class User {
 
     //Other methods
 
-    public NewUserResponse getDtoFromUser(){
-        return new NewUserResponse(
-                id, email, username, avatar, hasAccess, isActivated, followsSubject, followsPost
+    public UserResponseDto getDtoFromUser(){
+
+        String urlAvatar = "";
+
+        if (avatar != null) urlAvatar = avatar.getUrl();
+
+        return new UserResponseDto(
+                id, email, username, urlAvatar, hasAccess, isActivated, followsSubject, followsPost
         );
     }
 }

@@ -1,33 +1,26 @@
 package com.secondcommit.forum.dto;
 
 import com.secondcommit.forum.entities.Subject;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
 /**
- * DTO with the required data for the creation of a new user
+ * DTO with the required data to update User
  */
-public class NewUserRequest {
+public class UpdateUserDto {
 
     private String email;
     private String username;
-    private String password;
+    private Boolean isActivated;
     private Set<Subject> hasAccess;
 
-    public NewUserRequest() {
+    public UpdateUserDto() {
     }
 
-    public NewUserRequest(String email, String username, String password) {
+    public UpdateUserDto(String email, String username, Boolean isActivated, Set<Subject> hasAccess) {
         this.email = email;
         this.username = username;
-        this.password = password;
-    }
-
-    public NewUserRequest(String email, String username, String password, Set<Subject> hasAccess) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
+        this.isActivated = isActivated;
         this.hasAccess = hasAccess;
     }
 
@@ -47,12 +40,12 @@ public class NewUserRequest {
         this.username = username;
     }
 
-    public String getPassword() {
-        return password;
+    public Boolean getActivated() {
+        return isActivated;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setActivated(Boolean activated) {
+        isActivated = activated;
     }
 
     public Set<Subject> getHasAccess() {

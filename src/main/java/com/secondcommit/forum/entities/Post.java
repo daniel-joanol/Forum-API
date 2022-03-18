@@ -37,9 +37,6 @@ public class Post {
     @Column
     private boolean fixed = false;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    private Subject subject;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USERS_WHOLIKE_POST",
             joinColumns = {
@@ -84,19 +81,17 @@ public class Post {
     public Post() {
     }
 
-    public Post(User author, String title, String content, Subject subject) {
+    public Post(User author, String title, String content) {
         this.author = author;
         this.title = title;
         this.content = content;
-        this.subject = subject;
         date = new Date();
     }
 
-    public Post(User author, String title, String content, Subject subject, Set<File> files) {
+    public Post(User author, String title, String content, Set<File> files) {
         this.author = author;
         this.title = title;
         this.content = content;
-        this.subject = subject;
         this.files = files;
         date = new Date();
     }
@@ -165,14 +160,6 @@ public class Post {
 
     public void setFixed(boolean fixed) {
         this.fixed = fixed;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
     }
 
     public Set<User> getUsersWhoLike() {

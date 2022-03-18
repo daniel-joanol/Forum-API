@@ -92,12 +92,12 @@ public class AuthController {
      */
     @PostMapping("/new-user")
     @ApiOperation("Creates new user")
-    public ResponseEntity<?> newUSer(@RequestBody NewUserRequest newUser){
+    public ResponseEntity<?> newUser(@RequestBody NewUserRequest newUser){
 
         //Validates the DTO
         if (newUser.getUsername() != null &&
-            newUser.getEmail() != null &&
-            newUser.getPassword() != null)
+                newUser.getEmail() != null &&
+                newUser.getPassword() != null)
             return userService.createUser(newUser);
 
         return ResponseEntity.badRequest()
@@ -113,7 +113,7 @@ public class AuthController {
      */
     @PostMapping("/activate-user")
     @ApiOperation("Activates the new user")
-    public ResponseEntity activateUser(@RequestBody ActivateUserRequest activateUser){
+    public ResponseEntity<?> activateUser(@RequestBody ActivateUserRequest activateUser){
 
         //Validates the DTO
         if (activateUser.getUsername() == null || activateUser.getActivationCode() == null)

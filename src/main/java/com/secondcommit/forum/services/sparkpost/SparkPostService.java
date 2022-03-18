@@ -10,5 +10,7 @@ public interface SparkPostService {
     void sendWelcomeMessage(User user) throws SparkPostException;
     ResponseEntity<?> sendForgotPassMessage(User user) throws SparkPostException;
     void sendChangedPassMessage(User user) throws SparkPostException;
+    void sendUserUpdatedMessage(User user) throws SparkPostException;
+    void sendUserRemovedMessage(User user) throws SparkPostException;
     int randomNumber();
 }
