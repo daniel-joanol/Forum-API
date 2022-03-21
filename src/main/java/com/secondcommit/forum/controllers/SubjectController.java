@@ -6,6 +6,7 @@ import com.secondcommit.forum.services.subject.SubjectServiceImpl;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -29,7 +30,7 @@ public class SubjectController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/")
     @ApiOperation("Creates new subject")
-    public ResponseEntity<?> newSubject(@RequestBody SubjectDto subjectDto){
+    public ResponseEntity<?> newSubject(@RequestBody SubjectDto subjectDto) {
 
         if (subjectDto.getName() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
@@ -38,15 +39,27 @@ public class SubjectController {
     }
 
     /**
-     * Gets all subject data
+     * Method to get a specific subject
      * @param id
-     * @return ResponseEntity<Subject>
+     * @return ResponseEntity (ok: subject, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
     @ApiOperation("Gets all subject data")
     public ResponseEntity<?> getSubject(@PathVariable Long id){
         return subjectService.getSubject(id);
+    }
+
+    /**
+     * Method to get all subjects that the user has access to
+     * @param username
+     * @return ResponseEntity (ok: Set(SubjectDtoResponse), no content)
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @GetMapping("/")
+    @ApiOperation("Gets all subject data")
+    public ResponseEntity<?> getSubjectsAllowed(@CurrentSecurityContext(expression="authentication?.name") String username){
+        return subjectService.getSubjectsAllowed(username);
     }
 
     /**
@@ -77,4 +90,6 @@ public class SubjectController {
     public ResponseEntity<?> deleteSubject(@PathVariable Long id){
         return subjectService.deleteSubject(id);
     }
+
+    //TODO: Create DTO for the module and update the subject response dto. It's sending too much information back
 }

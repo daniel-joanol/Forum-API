@@ -1,11 +1,14 @@
 package com.secondcommit.forum.services.subject;
 
 import com.secondcommit.forum.dto.SubjectDto;
+import com.secondcommit.forum.dto.SubjectDtoResponse;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.entities.Module;
+import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.ModuleRepository;
 import com.secondcommit.forum.repositories.SubjectRepository;
+import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +30,20 @@ public class SubjectServiceImpl implements SubjectService {
     private final SubjectRepository subjectRepository;
 
     @Autowired
+    private final UserRepository userRepository;
+
+    @Autowired
     private final CloudinaryServiceImpl cloudinary;
 
     @Autowired
     private final ModuleRepository moduleRepository;
 
     public SubjectServiceImpl(SubjectRepository subjectRepository, CloudinaryServiceImpl cloudinary,
-                              ModuleRepository moduleRepository) {
+                              ModuleRepository moduleRepository, UserRepository userRepository) {
         this.subjectRepository = subjectRepository;
         this.cloudinary = cloudinary;
         this.moduleRepository = moduleRepository;
+        this.userRepository = userRepository;
     }
 
     /**
@@ -117,6 +124,27 @@ public class SubjectServiceImpl implements SubjectService {
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return ResponseEntity.ok(subjectOpt.get());
+    }
+
+    /**
+     * Method to get the subjects that the user are allowed to
+     * @param username (gets from the jwt token)
+     * @return ResponseEntity (ok: set(subjectDtoResponse), no content)
+     */
+    @Override
+    public ResponseEntity<?> getSubjectsAllowed(String username) {
+
+        //Gets user
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        Set<SubjectDtoResponse> response = new HashSet<>();
+        for (Subject subject : userOpt.get().getHasAccess())
+            response.add(new SubjectDtoResponse(subject.getId(), subject.getName()));
+
+        if (response.size() == 0)
+            return ResponseEntity.noContent().build();
+
+        return ResponseEntity.ok(response);
     }
 
     /**

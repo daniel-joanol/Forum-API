@@ -1,6 +1,7 @@
 package com.secondcommit.forum.services.user;
 
 import com.secondcommit.forum.dto.NewUserRequest;
+import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.UpdateUserDto;
 import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.entities.User;
@@ -16,8 +17,8 @@ public interface UserService {
     ResponseEntity<?> activateUser(User user, Integer activationCode);
     ResponseEntity<?> addAvatar(String username, MultipartFile avatar);
     ResponseEntity<?> getUser(Long id);
-    ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto);
-    ResponseEntity<?> deleteUser(Long id);
-    ResponseEntity<?> addAccess(Long id, Subject subject, String username);
-    ResponseEntity<?> removeAccess(Long id, Subject subject, String username);
+    ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto, String username);
+    ResponseEntity<?> deleteUser(Long id, String username);
+    ResponseEntity<?> addAccess(Long id, SubjectDto subjectDto);
+    ResponseEntity<?> removeAccess(Long id, SubjectDto subjectDto);
 }

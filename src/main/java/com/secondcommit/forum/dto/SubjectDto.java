@@ -9,14 +9,12 @@ import java.util.Set;
 public class SubjectDto {
 
     private String name;
-    private Set<Module> modules;
 
     public SubjectDto() {
     }
 
-    public SubjectDto(String name, Set<Module> modules) {
+    public SubjectDto(String name) {
         this.name = name;
-        this.modules = modules;
     }
 
     public String getName() {
@@ -27,11 +25,4 @@ public class SubjectDto {
         this.name = name;
     }
 
-    public Set<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<Module> modules) {
-        this.modules = modules;
-    }
 }

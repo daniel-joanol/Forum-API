@@ -1,7 +1,5 @@
 package com.secondcommit.forum.dto;
 
-import com.secondcommit.forum.entities.Subject;
-
 import java.util.Set;
 
 /**
@@ -12,12 +10,12 @@ public class UpdateUserDto {
     private String email;
     private String username;
     private Boolean isActivated;
-    private Set<Subject> hasAccess;
+    private Set<String> hasAccess;
 
     public UpdateUserDto() {
     }
 
-    public UpdateUserDto(String email, String username, Boolean isActivated, Set<Subject> hasAccess) {
+    public UpdateUserDto(String email, String username, Boolean isActivated, Set<String> hasAccess) {
         this.email = email;
         this.username = username;
         this.isActivated = isActivated;
@@ -48,11 +46,11 @@ public class UpdateUserDto {
         isActivated = activated;
     }
 
-    public Set<Subject> getHasAccess() {
+    public Set<String> getHasAccess() {
         return hasAccess;
     }
 
-    public void setHasAccess(Set<Subject> hasAccess) {
+    public void setHasAccess(Set<String> hasAccess) {
         this.hasAccess = hasAccess;
     }
 }

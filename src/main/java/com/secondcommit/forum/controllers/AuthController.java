@@ -56,9 +56,9 @@ public class AuthController {
     }
 
     /**
-     * Method to allow the start of the session
-     * @param loginRequest username and password
-     * @return jwt token
+     * Method to login
+     * @param loginRequest (username and password)
+     * @return ResponseEntity (ok: jwt token, bad request: messageResponse)
      */
     @PostMapping("/login")
     @ApiOperation("Login")
@@ -76,6 +76,7 @@ public class AuthController {
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("The user " + userOpt.get().getUsername() + " isn't validated yet"));
 
+        //Authentication
         Authentication authentication = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -176,4 +177,6 @@ public class AuthController {
 
         return authService.setNewPass(userOpt.get(), newPassRequest.getNewPass(), newPassRequest.getValidationCode());
     }
+
+    //TODO: Method to create user admin
 }

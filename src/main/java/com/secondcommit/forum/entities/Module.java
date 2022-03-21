@@ -1,5 +1,7 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.ModuleDtoResponse;
+
 import javax.persistence.*;
 import java.util.Set;
 
@@ -95,5 +97,9 @@ public class Module {
     public void removePost(Post post){
         posts.remove(post);
         totalQuestions = posts.size();
+    }
+
+    public ModuleDtoResponse getDtoFromModule(){
+        return new ModuleDtoResponse(id, name, description, totalQuestions);
     }
 }

@@ -1,6 +1,7 @@
 package com.secondcommit.forum.services.user;
 
 import com.secondcommit.forum.dto.NewUserRequest;
+import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.UpdateUserDto;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Role;
@@ -57,9 +58,9 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Method that creates a new user
-     * @param newUser
-     * @return ResponseEntity
+     * Method to create a new user
+     * @param newUser (NewUserRequest)
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> createUser(NewUserRequest newUser) {
@@ -83,16 +84,16 @@ public class UserServiceImpl implements UserService{
         Set<Role> roles = new HashSet<>();
 
         List<Role> rolesRepo = roleRepository.findAll();
-        Optional<Role> role = roleRepository.findByName("USER");
-        roles.add(role.get());
+        roles.add(roleRepository.findByName("USER").get());
 
         //Validates subjects
         Set<Subject> validSubjects = new HashSet<>();
 
         if (newUser.getHasAccess() != null){
-            for (Subject subject : newUser.getHasAccess()){
-                if (subjectRepository.equals(subject))
-                    validSubjects.add(subject);
+            for (String strSubject : newUser.getHasAccess()){
+                Optional<Subject> subjectOpt = subjectRepository.findByName(strSubject);
+                if (subjectOpt.isPresent())
+                    validSubjects.add(subjectOpt.get());
             }
 
             user = new User(newUser.getEmail(), newUser.getUsername(),
@@ -113,10 +114,10 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Validates the new user
+     * Method to validate a new user
      * @param user
      * @param activationCode int
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: messageResponse, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
@@ -142,19 +143,17 @@ public class UserServiceImpl implements UserService{
 
     /**
      * Method to update an avatar. Only one per user is allowed
-     * @param username
-     * @param avatar (file)
-     * @return ResponseEntity
+     * @param username (Gets from the jwt token)
+     * @param avatar (MultipartFile)
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> addAvatar(String username, MultipartFile avatar) {
 
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
 
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The username " +  username + " doesn't exist"));
-
+        //Saves image in Cloudinary
         try {
             File photo = new File(cloudinary.uploadImage(avatar));
             userOpt.get().setAvatar(photo);
@@ -170,37 +169,46 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Gets all info from the user
+     * Method to get user
      * @param id
-     * @return User
+     * @return ResponseEntity (ok: User, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getUser(Long id) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
 
-        return ResponseEntity.ok(userOpt.get());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
     }
 
     /**
-     * Updates User (only username, email, isActivated, hasAccess(Set<Subject>)
+     * Method to update User (only username, email, isActivated, hasAccess(Set<String>)
      * Sends an alert email after the update
      * @param id
      * @param userDto
-     * @return User
+     * @return ResponseEntity (ok: User, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto) {
+    public ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto, String username) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to update, checks to see if the user is ADMIN
+        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userOpt.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
+        }
 
         //Starts updating
         userOpt.get().setUsername(userDto.getUsername());
@@ -213,9 +221,10 @@ public class UserServiceImpl implements UserService{
         Set<Subject> validSubjects = new HashSet<>();
 
         if (userDto.getHasAccess() != null){
-            for (Subject subject : userDto.getHasAccess()){
-                if (subjectRepository.equals(subject))
-                    validSubjects.add(subject);
+            for (String strSubject : userDto.getHasAccess()){
+                Optional<Subject> subjectOpt = subjectRepository.findByName(strSubject);
+                if (subjectOpt.isPresent())
+                    validSubjects.add(subjectOpt.get());
             }
 
             userOpt.get().setHasAccess(validSubjects);
@@ -234,18 +243,31 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Deletes the user. Sends a goodbye email
+     * Method to elete the user. Sends a goodbye email
      * @param id
-     * @return
+     * @return ResponseEntity (ok: messageResponse, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> deleteUser(Long id) {
+    public ResponseEntity<?> deleteUser(Long id, String username) {
 
-        //Validates User
+        //Gets the user
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to delete, checks to see if the user is ADMIN
+        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userOpt.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to delete the user " +
+                                userOpt.get().getUsername()));
+        }
 
         userRepository.delete(userOpt.get());
 
@@ -262,38 +284,22 @@ public class UserServiceImpl implements UserService{
     /**
      * Method to add access to one subject
      * @param id
-     * @param subject
+     * @param subjectDto
      * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> addAccess(Long id, Subject subject, String username) {
+    public ResponseEntity<?> addAccess(Long id, SubjectDto subjectDto) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
-
-        //Tests if the user is allowed to edit this post (only authors and admins can do it)
-        //If the user isn't the one trying to update, checks to see if the user is ADMIN
-        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
-
-            boolean isAdmin = false;
-
-            for (Role role  : userOpt.get().getRoles()){
-                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
-            }
-
-            if (!isAdmin)
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
-        }
 
         //Validates Subject
-        if (!subjectRepository.equals(subject))
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().addAccess(subject);
+        userOpt.get().addAccess(subjectOpt.get());
         userRepository.save(userOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser());
@@ -302,39 +308,22 @@ public class UserServiceImpl implements UserService{
     /**
      * Method to remove access to a subject
      * @param id
-     * @param subject
-     * @param username (gets from the jwt token)
+     * @param subjectDto
      * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> removeAccess(Long id, Subject subject, String username) {
+    public ResponseEntity<?> removeAccess(Long id, SubjectDto subjectDto) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
-
-        //Tests if the user is allowed to edit this post (only authors and admins can do it)
-        //If the user isn't the one trying to update, checks to see if the user is ADMIN
-        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
-
-            boolean isAdmin = false;
-
-            for (Role role  : userOpt.get().getRoles()){
-                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
-            }
-
-            if (!isAdmin)
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
-        }
 
         //Validates Subject
-        if (!userOpt.get().getHasAccess().contains(subject))
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().removeAccess(subject);
+        userOpt.get().removeAccess(subjectOpt.get());
         userRepository.save(userOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser());
