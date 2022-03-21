@@ -1,5 +1,6 @@
 package com.secondcommit.forum.services.subject;
 
+import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.SubjectDtoResponse;
 import com.secondcommit.forum.entities.File;
@@ -66,16 +67,16 @@ public class SubjectServiceImpl implements SubjectService {
         if (subjectDto.getModules() != null){
             Set<Module> modules = new HashSet<>();
 
-            for (Module module : subjectDto.getModules()){
+            for (ModuleDto moduleDto : subjectDto.getModules()){
                 // Tests the names to see if they already exists
-                Optional<Module> moduleOpt = moduleRepository.findByName(module.getName());
+                Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
 
                 // If it exists, just adds to the set. If it doesn't, creates a new one
                 // If it doesn't have a description ignores it
                 if (moduleOpt.isPresent()){
                     modules.add(moduleOpt.get());
-                }else if (module.getDescription() != null){
-                    modules.add(new Module(module.getName(), module.getDescription()));
+                }else if (moduleDto.getDescription() != null){
+                    modules.add(new Module(moduleDto.getName(), moduleDto.getDescription()));
                 }
             }
 
@@ -96,6 +97,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public ResponseEntity<?> addAvatarToSubject(Subject subject, MultipartFile avatar) {
 
+        //Upload image to Cloudinary
         try {
             File file = new File(cloudinary.uploadImage(avatar));
             subject.setAvatar(file);
@@ -110,18 +112,15 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     /**
-     * Method that gets the subject
+     * Method that gets all data in the subject
      * @param id
-     * @return ResponseEntity<Subject>
+     * @return ResponseEntity (ok: Subject, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getSubject(Long id){
 
-        //Validates the id
+        //Gets the id
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
-
-        if (subjectOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return ResponseEntity.ok(subjectOpt.get());
     }
@@ -151,15 +150,13 @@ public class SubjectServiceImpl implements SubjectService {
      * Method that updates the subject
      * @param id
      * @param subjectDto
-     * @return
+     * @return ResponseEntity (ok: Subject, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> updateSubject(Long id, SubjectDto subjectDto){
 
-        //Validates the id
+        //Gets the subject
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
-        if (subjectOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Updates name
         if (subjectDto.getName() != null)
@@ -169,16 +166,16 @@ public class SubjectServiceImpl implements SubjectService {
         if (subjectDto.getModules() != null){
             Set<Module> modules = new HashSet<>();
 
-            for (Module module : subjectDto.getModules()){
+            for (ModuleDto moduleDto : subjectDto.getModules()){
                 // Tests the names to see if they already exists
-                Optional<Module> moduleOpt = moduleRepository.findByName(module.getName());
+                Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
 
                 // If it exists, just adds to the set. If it doesn't, creates a new one
                 // If it doesn't have a description ignores it
                 if (moduleOpt.isPresent()){
                     modules.add(moduleOpt.get());
-                }else if (module.getDescription() != null){
-                    modules.add(new Module(module.getName(), module.getDescription()));
+                }else if (moduleDto.getDescription() != null){
+                    modules.add(new Module(moduleDto.getName(), moduleDto.getDescription()));
                 }
             }
 
@@ -199,10 +196,8 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public ResponseEntity<?> deleteSubject(Long id){
 
-        //Validates the id
+        //Gets the subject
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
-        if (subjectOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         subjectRepository.delete(subjectOpt.get());
 

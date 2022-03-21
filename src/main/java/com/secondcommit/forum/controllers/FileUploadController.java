@@ -34,10 +34,10 @@ public class FileUploadController {
     }
 
     /**
-     * Uploads the user avatar
+     * Method to upload the user avatar
      * @param username (gets from the jwt token)
      * @param avatar (MultipartFile)
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/upload-avatar/user")
@@ -53,10 +53,10 @@ public class FileUploadController {
     }
 
     /**
-     * Uploads the subject avatar
+     * Method to upload the subject avatar
      * @param id (gets from the url)
      * @param avatar (MultipartFile)
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/upload-avatar/subject/{id}")

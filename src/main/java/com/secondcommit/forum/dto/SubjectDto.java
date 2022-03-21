@@ -1,6 +1,5 @@
 package com.secondcommit.forum.dto;
 
-import com.secondcommit.forum.entities.Module;
 import java.util.Set;
 
 /**
@@ -9,12 +8,14 @@ import java.util.Set;
 public class SubjectDto {
 
     private String name;
+    private Set<ModuleDto> modules;
 
     public SubjectDto() {
     }
 
-    public SubjectDto(String name) {
+    public SubjectDto(String name, Set<ModuleDto> modules) {
         this.name = name;
+        this.modules = modules;
     }
 
     public String getName() {
@@ -25,4 +26,11 @@ public class SubjectDto {
         this.name = name;
     }
 
+    public Set<ModuleDto> getModules() {
+        return modules;
+    }
+
+    public void setModules(Set<ModuleDto> modules) {
+        this.modules = modules;
+    }
 }

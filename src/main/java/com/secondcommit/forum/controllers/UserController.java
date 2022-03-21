@@ -86,7 +86,7 @@ public class UserController {
     }
 
     /**
-     * Method to add access to a subject. Only admin is allowed
+     * Method to add access to a subject. ADMIN only
      * @param id
      * @param subjectDto
      * @return
@@ -104,7 +104,7 @@ public class UserController {
     }
 
     /**
-     * Method to remove access from a subject. Only admin is allowed
+     * Method to remove access from a subject. ADMIN only
      * @param id
      * @param subjectDto
      * @return
