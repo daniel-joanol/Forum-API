@@ -2,7 +2,9 @@ package com.secondcommit.forum.services.module;
 
 import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.entities.Module;
+import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,12 @@ public class ModuleServiceImpl implements ModuleService{
     @Autowired
     private ModuleRepository moduleRepository;
 
-    public ModuleServiceImpl(ModuleRepository moduleRepository) {
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    public ModuleServiceImpl(ModuleRepository moduleRepository, SubjectRepository subjectRepository) {
         this.moduleRepository = moduleRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -29,7 +35,10 @@ public class ModuleServiceImpl implements ModuleService{
      * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> addModule(ModuleDto moduleDto) {
+    public ResponseEntity<?> addModule(Long id, ModuleDto moduleDto) {
+
+        //Gets module
+        Optional<Subject> subjectOpt = subjectRepository.findById(id);
 
         //Tests if the module already exists
         Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
@@ -40,7 +49,9 @@ public class ModuleServiceImpl implements ModuleService{
 
         //Creates the new module
         Module module = new Module(moduleDto.getName(), moduleDto.getDescription());
+        subjectOpt.get().addModule(module);
         moduleRepository.save(module);
+        subjectRepository.save(subjectOpt.get());
 
         return ResponseEntity.ok(module);
     }

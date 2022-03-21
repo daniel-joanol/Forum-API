@@ -100,6 +100,16 @@ public class UserServiceImpl implements UserService{
                     encoder.encode(newUser.getPassword()), roles, validSubjects);
         }
 
+        //Saves image in Cloudinary
+        try {
+            File photo = new File(cloudinary.uploadImage(newUser.getAvatar()));
+            user.setAvatar(photo);
+        } catch (Exception e){
+            System.err.println("Error: " + e.getMessage());
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("Upload failed"));
+        }
+
         //Saves the user in the database
         userRepository.save(user);
 
@@ -107,7 +117,7 @@ public class UserServiceImpl implements UserService{
         try {
             sparkPost.sendActivationMessage(user);
         } catch (SparkPostException e){
-            System.out.println("Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
 
         return ResponseEntity.ok().body(user.getDtoFromUser());

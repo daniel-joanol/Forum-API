@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
  */
 public interface ModuleService {
 
-    ResponseEntity<?> addModule(ModuleDto moduleDto);
+    ResponseEntity<?> addModule(Long id, ModuleDto moduleDto);
     ResponseEntity<?> getModule(Long id);
     ResponseEntity<?> updateModule(Long id, ModuleDto moduleDto);
     ResponseEntity<?> deleteModule(Long id);

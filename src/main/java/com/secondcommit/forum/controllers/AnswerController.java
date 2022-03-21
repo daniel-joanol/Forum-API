@@ -51,6 +51,10 @@ public class AnswerController {
         if (answerDto.getContent() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
+        //Validates length of MultipartFile[]
+        if (answerDto.getFiles().length > 5)
+            return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
+
         return answerService.addAnswer(postId, answerDto, username);
     }
 

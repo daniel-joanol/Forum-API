@@ -1,5 +1,7 @@
 package com.secondcommit.forum.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Set;
 
 /**
@@ -11,6 +13,7 @@ public class NewUserRequest {
     private String username;
     private String password;
     private Set<String> hasAccess;
+    private MultipartFile avatar;
 
     public NewUserRequest() {
     }
@@ -58,5 +61,13 @@ public class NewUserRequest {
 
     public void setHasAccess(Set<String> hasAccess) {
         this.hasAccess = hasAccess;
+    }
+
+    public MultipartFile getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(MultipartFile avatar) {
+        this.avatar = avatar;
     }
 }

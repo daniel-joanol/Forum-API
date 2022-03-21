@@ -17,6 +17,8 @@ import java.util.Optional;
 /**
  * Controller to manage the upload of files
  * It's necessary to be authenticated
+ * It's only used to send images individually. When updating a user, as an example, you can send the image in the
+ *    userDto
  */
 @RestController
 @RequestMapping("/api/image")

@@ -1,6 +1,7 @@
 package com.secondcommit.forum.controllers;
 
 import com.secondcommit.forum.dto.PostDto;
+import com.secondcommit.forum.repositories.ModuleRepository;
 import com.secondcommit.forum.repositories.PostRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.post.PostServiceImpl;
@@ -19,10 +20,12 @@ public class PostController {
 
     private final PostServiceImpl postService;
     private final PostRepository postRepository;
+    private final ModuleRepository moduleRepository;
 
-    public PostController(PostServiceImpl postService, PostRepository postRepository) {
+    public PostController(PostServiceImpl postService, PostRepository postRepository, ModuleRepository moduleRepository) {
         this.postService = postService;
         this.postRepository = postRepository;
+        this.moduleRepository = moduleRepository;
     }
 
     /**
@@ -32,15 +35,24 @@ public class PostController {
      * @return ResponseEntity (ok: post, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("/")
+    @PostMapping("/{moduleId}")
     @ApiOperation("Creates new post. Authentication required (USER)")
-    public ResponseEntity<?> newPost(@RequestBody PostDto postDto, @CurrentSecurityContext(expression="authentication?.name") String username) {
+    public ResponseEntity<?> newPost(@RequestParam Long moduleId, PostDto postDto,
+                                     @CurrentSecurityContext(expression="authentication?.name") String username) {
+
+        //Validates module id
+        if (!moduleRepository.existsById(moduleId))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Validates post
         if (postDto.getContent() == null || postDto.getTitle() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
-        return postService.addPost(postDto, username);
+        //Validates length of MultipartFile[]
+        if (postDto.getFiles().length > 5)
+            return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
+
+        return postService.addPost(moduleId, postDto, username);
     }
 
     /**

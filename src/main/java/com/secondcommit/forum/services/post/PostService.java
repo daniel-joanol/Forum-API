@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
  */
 public interface PostService {
 
-    ResponseEntity<?> addPost(PostDto postDto, String author);
+    ResponseEntity<?> addPost(Long id, PostDto postDto, String author);
     ResponseEntity<?> getPost(Long id);
     ResponseEntity<?> updatePost(Long id, PostDto postDto, String username);
     ResponseEntity<?> deletePost(Long id, String username);

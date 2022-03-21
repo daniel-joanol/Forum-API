@@ -30,7 +30,7 @@ public class Subject {
     private File avatar;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "SUBJECT_POSTS",
+    @JoinTable(name = "SUBJECT_MODULES",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
             },

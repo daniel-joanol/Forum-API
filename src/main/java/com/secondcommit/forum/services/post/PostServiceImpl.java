@@ -1,6 +1,10 @@
 package com.secondcommit.forum.services.post;
 
+import com.secondcommit.forum.entities.Module;
+import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
 import com.secondcommit.forum.dto.PostDto;
+import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Post;
 import com.secondcommit.forum.entities.Role;
 import com.secondcommit.forum.entities.User;
@@ -10,6 +14,7 @@ import com.secondcommit.forum.security.payload.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -25,9 +30,17 @@ public class PostServiceImpl implements PostService{
     @Autowired
     private UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository) {
+    @Autowired
+    private CloudinaryServiceImpl cloudinary;
+
+    @Autowired
+    private ModuleRepository moduleRepository;
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CloudinaryServiceImpl cloudinary, ModuleRepository moduleRepository) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
+        this.moduleRepository = moduleRepository;
     }
 
     /**
@@ -37,7 +50,7 @@ public class PostServiceImpl implements PostService{
      * @return ResponseEntity (ok: post, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> addPost(PostDto postDto, String author) {
+    public ResponseEntity<?> addPost(Long id, PostDto postDto, String author) {
 
         //Tests if the post title already exists by title
         Optional<Post> postOpt = postRepository.findByTitle(postDto.getTitle());
@@ -49,9 +62,27 @@ public class PostServiceImpl implements PostService{
         //Gets user from author
         Optional<User> userOpt = userRepository.findByUsername(author);
 
+        //Gets module
+        Optional<Module> moduleOpt = moduleRepository.findById(id);
+
+        //Upload images to Cloudinary
+        for (MultipartFile image : postDto.getFiles()){
+            //Saves image in Cloudinary
+            try {
+                File photo = new File(cloudinary.uploadImage(image));
+                postOpt.get().addFile(photo);
+            } catch (Exception e){
+                System.err.println("Error: " + e.getMessage());
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Upload failed"));
+            }
+        }
+
         //Creates the new post
         Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent());
+        moduleOpt.get().addPost(post);
         postRepository.save(post);
+        moduleRepository.save(moduleOpt.get());
 
         return ResponseEntity.ok(post);
     }

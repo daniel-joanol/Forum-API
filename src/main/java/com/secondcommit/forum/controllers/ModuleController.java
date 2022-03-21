@@ -2,6 +2,7 @@ package com.secondcommit.forum.controllers;
 
 import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.repositories.PostRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.module.ModuleServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -18,10 +19,13 @@ public class ModuleController {
 
     private final ModuleServiceImpl moduleService;
     private final ModuleRepository moduleRepository;
+    private final PostRepository postRepository;
 
-    public ModuleController(ModuleServiceImpl moduleService, ModuleRepository moduleRepository){
+    public ModuleController(ModuleServiceImpl moduleService, ModuleRepository moduleRepository,
+                            PostRepository postRepository){
         this.moduleService = moduleService;
         this.moduleRepository = moduleRepository;
+        this.postRepository = postRepository;
     }
 
     /**
@@ -30,14 +34,19 @@ public class ModuleController {
      * @return ResponseEntity (ok: Module, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/")
+    @PostMapping("/{postId}")
     @ApiOperation("Creates new module. Authentication required (ADMIN)")
-    public ResponseEntity<?> newModule(@RequestBody ModuleDto moduleDto){
+    public ResponseEntity<?> newModule(@RequestParam Long postId, @RequestBody ModuleDto moduleDto){
 
+        //Validates id
+        if(!postRepository.existsById(postId))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        //Validates Dto
         if (moduleDto.getName() == null || moduleDto.getDescription() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
-        return moduleService.addModule(moduleDto);
+        return moduleService.addModule(postId, moduleDto);
     }
 
     /**

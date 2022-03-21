@@ -83,6 +83,16 @@ public class SubjectServiceImpl implements SubjectService {
             subject.setModules(modules);
         }
 
+        //Upload image to Cloudinary
+        try {
+            File file = new File(cloudinary.uploadImage(subjectDto.getAvatar()));
+            subject.setAvatar(file);
+
+        } catch (Exception e){
+            System.err.println("Error : " + e.getMessage());
+            return ResponseEntity.badRequest().body(new MessageResponse("Failed to upload avatar"));
+        }
+
         subjectRepository.save(subject);
 
         return ResponseEntity.ok(subject);
@@ -104,7 +114,7 @@ public class SubjectServiceImpl implements SubjectService {
             subjectRepository.save(subject);
 
         } catch (Exception e){
-            System.out.println("Error : " + e.getMessage());
+            System.err.println("Error : " + e.getMessage());
             return ResponseEntity.badRequest().body(new MessageResponse("Failed to upload avatar"));
         }
 

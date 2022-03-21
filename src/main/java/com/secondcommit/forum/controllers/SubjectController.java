@@ -33,7 +33,7 @@ public class SubjectController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/")
     @ApiOperation("Creates new subject. Authentication required (ADMIN)")
-    public ResponseEntity<?> newSubject(@RequestBody SubjectDto subjectDto) {
+    public ResponseEntity<?> newSubject(SubjectDto subjectDto) {
 
         if (subjectDto.getName() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));

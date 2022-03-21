@@ -1,5 +1,7 @@
 package com.secondcommit.forum.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 /**
  * Dto with the data required to create and update posts
  */
@@ -7,6 +9,7 @@ public class PostDto {
 
     private String title;
     private String content;
+    private MultipartFile[] files;
 
     public PostDto() {
     }
@@ -30,5 +33,13 @@ public class PostDto {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public MultipartFile[] getFiles() {
+        return files;
+    }
+
+    public void setFiles(MultipartFile[] files) {
+        this.files = files;
     }
 }

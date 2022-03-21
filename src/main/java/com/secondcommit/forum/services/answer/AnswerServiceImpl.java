@@ -1,19 +1,20 @@
 package com.secondcommit.forum.services.answer;
 
 import com.secondcommit.forum.dto.AnswerDto;
-import com.secondcommit.forum.entities.Answer;
-import com.secondcommit.forum.entities.Post;
-import com.secondcommit.forum.entities.Role;
-import com.secondcommit.forum.entities.User;
+import com.secondcommit.forum.entities.*;
 import com.secondcommit.forum.repositories.AnswerRepository;
 import com.secondcommit.forum.repositories.PostRepository;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
+import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Implementation of the Answer service interface
@@ -30,10 +31,15 @@ public class AnswerServiceImpl implements AnswerService{
     @Autowired
     private UserRepository userRepository;
 
-    public AnswerServiceImpl(AnswerRepository answerRepository, PostRepository postRepository, UserRepository userRepository) {
+    @Autowired
+    private CloudinaryServiceImpl cloudinary;
+
+    public AnswerServiceImpl(AnswerRepository answerRepository, PostRepository postRepository,
+                             UserRepository userRepository, CloudinaryServiceImpl cloudinary) {
         this.answerRepository = answerRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
+        this.cloudinary = cloudinary;
     }
 
     /**
@@ -51,9 +57,26 @@ public class AnswerServiceImpl implements AnswerService{
         //Gets user
         Optional<User> userOpt = userRepository.findByUsername(author);
 
+        //Upload images to Cloudinary
+        Set<File> files = new HashSet<>();
+
+        for (MultipartFile image : answerDto.getFiles()){
+            //Saves image in Cloudinary
+            try {
+                File photo = new File(cloudinary.uploadImage(image));
+                files.add(photo);
+            } catch (Exception e){
+                System.err.println("Error: " + e.getMessage());
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Upload failed"));
+            }
+        }
+
         //Creates answer
-        Answer answer = new Answer(answerDto.getContent(), userOpt.get());
+        Answer answer = new Answer(answerDto.getContent(), userOpt.get(), files);
+        postOpt.get().addAnswer(answer);
         answerRepository.save(answer);
+        postRepository.save(postOpt.get());
 
         return ResponseEntity.ok(answer);
     }

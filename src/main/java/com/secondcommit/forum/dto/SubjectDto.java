@@ -1,5 +1,7 @@
 package com.secondcommit.forum.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Set;
 
 /**
@@ -9,6 +11,7 @@ public class SubjectDto {
 
     private String name;
     private Set<ModuleDto> modules;
+    private MultipartFile avatar;
 
     public SubjectDto() {
     }
@@ -32,5 +35,13 @@ public class SubjectDto {
 
     public void setModules(Set<ModuleDto> modules) {
         this.modules = modules;
+    }
+
+    public MultipartFile getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(MultipartFile avatar) {
+        this.avatar = avatar;
     }
 }
