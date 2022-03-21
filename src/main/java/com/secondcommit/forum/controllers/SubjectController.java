@@ -32,7 +32,7 @@ public class SubjectController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/")
-    @ApiOperation("Creates new subject")
+    @ApiOperation("Creates new subject. Authentication required (ADMIN)")
     public ResponseEntity<?> newSubject(@RequestBody SubjectDto subjectDto) {
 
         if (subjectDto.getName() == null)
@@ -48,7 +48,7 @@ public class SubjectController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets all subject data")
+    @ApiOperation("Gets all subject data. Authentication required (USER)")
     public ResponseEntity<?> getSubject(@PathVariable Long id){
 
         //Validates the subject
@@ -65,7 +65,7 @@ public class SubjectController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/")
-    @ApiOperation("Gets all subjects which the user has access to")
+    @ApiOperation("Gets all subjects which the user has access to. Authentication required (USER)")
     public ResponseEntity<?> getSubjectsAllowed(@CurrentSecurityContext(expression="authentication?.name") String username){
         return subjectService.getSubjectsAllowed(username);
     }
@@ -78,7 +78,7 @@ public class SubjectController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
-    @ApiOperation("Updates subject data")
+    @ApiOperation("Updates subject data. Authentication required (ADMIN)")
     public ResponseEntity<?> updateSubject(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
 
         //Validates DTO
@@ -99,7 +99,7 @@ public class SubjectController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-    @ApiOperation("Deletes subject")
+    @ApiOperation("Deletes subject. Authentication required (ADMIN)")
     public ResponseEntity<?> deleteSubject(@PathVariable Long id){
 
         //Validates the id

@@ -33,7 +33,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets all user data")
+    @ApiOperation("Gets all user data. Authentication required (USER)")
     public ResponseEntity<?> getUser(@PathVariable Long id){
 
         //Validates the id
@@ -52,7 +52,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/{id}")
-    @ApiOperation("Updates user")
+    @ApiOperation("Updates user. Authentication required (USER)")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UpdateUserDto userDto,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
@@ -75,7 +75,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @DeleteMapping("/{id}")
-    @ApiOperation("Deletes user")
+    @ApiOperation("Deletes user. Authentication required (USER)")
     public ResponseEntity<?> deleteUser(@PathVariable Long id, @CurrentSecurityContext(expression="authentication?.name") String username){
         //Validates the id
         if (!userRepository.existsById(id))
@@ -93,7 +93,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/add-access/{id}")
-    @ApiOperation("Add access to subject")
+    @ApiOperation("Add access to subject. Authentication required (ADMIN)")
     public ResponseEntity<?> addAccess(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
         //Validates the id
         if (!userRepository.existsById(id))
@@ -111,7 +111,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/remove-access/{id}")
-    @ApiOperation("Remove to subject")
+    @ApiOperation("Remove to subject. Authentication required (ADMIN)")
     public ResponseEntity<?> removeAccess(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
         //Validates the id
         if (!userRepository.existsById(id))

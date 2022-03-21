@@ -46,12 +46,8 @@ public class PostServiceImpl implements PostService{
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("This post title " + postDto.getTitle() + " is already being used"));
 
-        //Test if the author exists
+        //Gets user from author
         Optional<User> userOpt = userRepository.findByUsername(author);
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + author + " doesn't exist"));
 
         //Creates the new post
         Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent());
@@ -68,11 +64,8 @@ public class PostServiceImpl implements PostService{
     @Override
     public ResponseEntity<?> getPost(Long id) {
 
-        //Validates the id
+        //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
-
-        if (postOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return ResponseEntity.ok(postOpt.get());
     }
@@ -87,18 +80,11 @@ public class PostServiceImpl implements PostService{
     @Override
     public ResponseEntity<?> updatePost(Long id, PostDto postDto, String username) {
 
-        //Validates the id
+        //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
 
-        if (postOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
-        //Tests if this user exists
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + username + " doesn't exist"));
 
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
         //If the user isn't the one trying to update, checks to see if the user is ADMIN
@@ -128,25 +114,19 @@ public class PostServiceImpl implements PostService{
     }
 
     /**
-     * Methot to delete the post. Only authors and admins are allowed
+     * Method to delete the post. Only authors and admins are allowed
      * @param id
      * @param username (takes the username from the jwt token)
      * @return ResponseEntity (ok: post, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> deletePost(Long id, String username) {
-        //Validates the id
+
+        //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
 
-        if (postOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
-        //Tests if this user exists
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + username + " doesn't exist"));
 
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
         if (postOpt.get().getAuthor() != userOpt.get()){
@@ -176,18 +156,11 @@ public class PostServiceImpl implements PostService{
     @Override
     public ResponseEntity<?> like(Long id, String username) {
 
-        //Validates the id
+        //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
 
-        if (postOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
-        //Tests if this user exists
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + username + " doesn't exist"));
 
         //Tests it the user hasn't already liked the post
         boolean alreadyLiked = false;
@@ -225,18 +198,11 @@ public class PostServiceImpl implements PostService{
     @Override
     public ResponseEntity<?> dislike(Long id, String username) {
 
-        //Validates the id
+        //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
 
-        if (postOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
-        //Tests if this user exists
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
-
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user " + username + " doesn't exist"));
 
         //Tests it the user hasn't already disliked the post
         boolean alreadyDisliked = false;
@@ -267,7 +233,7 @@ public class PostServiceImpl implements PostService{
     /**
      * Method to fix or unfix a post
      * @param id
-     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     * @return ResponseEntity (MessageResponse)
      */
     @Override
     public ResponseEntity<?> fix(Long id) {
@@ -287,6 +253,6 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get());
+        return ResponseEntity.ok().body(new MessageResponse("Post " + id + " fixed with success"));
     }
 }

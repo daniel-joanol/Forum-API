@@ -46,18 +46,15 @@ public class ModuleServiceImpl implements ModuleService{
     }
 
     /**
-     * Method to get the module
+     * Method to get the all module data
      * @param id
      * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getModule(Long id) {
 
-        //Validates the id
+        //Gets the module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
-
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return ResponseEntity.ok(moduleOpt.get());
     }
@@ -71,11 +68,8 @@ public class ModuleServiceImpl implements ModuleService{
     @Override
     public ResponseEntity<?> updateModule(Long id, ModuleDto moduleDto) {
 
-        //Validates the id
+        //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
-
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Updates the module
         if (moduleDto.getName() != null)
@@ -97,11 +91,8 @@ public class ModuleServiceImpl implements ModuleService{
     @Override
     public ResponseEntity<?> deleteModule(Long id) {
 
-        //Validates the id
+        //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
-
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         moduleRepository.delete(moduleOpt.get());
 
