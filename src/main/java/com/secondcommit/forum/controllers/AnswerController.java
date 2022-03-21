@@ -1,9 +1,10 @@
 package com.secondcommit.forum.controllers;
 
-import com.secondcommit.forum.dto.PostDto;
+import com.secondcommit.forum.dto.AnswerDto;
+import com.secondcommit.forum.repositories.AnswerRepository;
 import com.secondcommit.forum.repositories.PostRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
-import com.secondcommit.forum.services.post.PostServiceImpl;
+import com.secondcommit.forum.services.answer.AnswerService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,100 +12,111 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Controller to manage the Post CRUD methods
+ * Controller to manage the Answer CRUD methods
  */
 @RestController
-@RequestMapping("/api/post")
-public class PostController {
+@RequestMapping("/api/post/answer")
+public class AnswerController {
 
-    private final PostServiceImpl postService;
+    private final AnswerService answerService;
+    private final AnswerRepository answerRepository;
     private final PostRepository postRepository;
 
-    public PostController(PostServiceImpl postService, PostRepository postRepository) {
-        this.postService = postService;
+    public AnswerController(AnswerService answerService, AnswerRepository answerRepository, PostRepository postRepository) {
+        this.answerService = answerService;
+        this.answerRepository = answerRepository;
         this.postRepository = postRepository;
     }
 
     /**
-     * Method to create new post
-     * @param postDto (title and content)
+     * Method to create new answer
+     * @param postId
+     * @param answerDto (content)
      * @param username (gets from the jwt token)
-     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     * @return ResponseEntity (ok: answer, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("/")
-    @ApiOperation("Creates new post. Authentication required (USER)")
-    public ResponseEntity<?> newPost(@RequestBody PostDto postDto, @CurrentSecurityContext(expression="authentication?.name") String username) {
+    @PostMapping("/{postId}")
+    @ApiOperation("Creates new answer. Authentication required (USER)")
+    public ResponseEntity<?> newAnswer(@RequestParam Long postId,
+                                     @RequestBody AnswerDto answerDto,
+                                     @CurrentSecurityContext(expression="authentication?.name") String username) {
 
-        //Validates post
-        if (postDto.getContent() == null || postDto.getTitle() == null)
+        //Validates id
+        if (!postRepository.existsById(postId))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The post + " + postId + " doesn't exist"));
+
+        //Validates dto
+        if (answerDto.getContent() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
-        return postService.addPost(postDto, username);
+        return answerService.addAnswer(postId, answerDto, username);
     }
 
     /**
-     * Method to get the post
+     * Method to get the answer
      * @param id
-     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     * @return ResponseEntity (ok: answer, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets post. Authentication required (USER)")
-    public ResponseEntity<?> getPost(@PathVariable Long id){
+    @ApiOperation("Gets answer. Authentication required (USER)")
+    public ResponseEntity<?> getAnswer(@PathVariable Long id){
 
-        //Validates post
-        if (!postRepository.existsById(id))
+        //Validates answer
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.getPost(id);
+        return answerService.getAnswer(id);
     }
 
     /**
-     * Method to update post.
+     * Method to update answer.
      * @param id
-     * @param postDto
+     * @param answerDto (content)
      * @param username (Gets from the jwt token)
-     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     * @return ResponseEntity (ok: answer, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/{id}")
-    @ApiOperation("Updates the post. Authentication required (USER)")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDto postDto,
+    @ApiOperation("Updates the answer. Authentication required (USER)")
+    public ResponseEntity<?> updateAnswer(@PathVariable Long id,
+                                        @RequestBody AnswerDto answerDto,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates Dto
-        if (postDto.getTitle() == null && postDto.getContent() == null)
+        if (answerDto.getContent() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
         //Validates id
-        if (!postRepository.existsById(id))
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.updatePost(id, postDto, username);
+        return answerService.updateAnswer(id, answerDto, username);
     }
 
     /**
-     * Method to delete post
+     * Method to delete answer
      * @param id
      * @param username (Gets from the jwt token)
      * @return ResponseEntity (messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @DeleteMapping("/{id}")
-    @ApiOperation("Deletes the post. Authentication required (USER)")
-    public ResponseEntity<?> deletePost(@RequestParam Long id,
+    @ApiOperation("Deletes the answer. Authentication required (USER)")
+    public ResponseEntity<?> deleteAnswer(@RequestParam Long id,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
-        if (!postRepository.existsById(id))
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.deletePost(id, username);
+        return answerService.deleteAnswer(id, username);
     }
 
     /**
-     * Method to add or remove like from post
+     * Method to add or remove like from answer
      * @param id
      * @param username (Gets from the jwt token)
      * @return ResponseEntity(ok: totalLikes, bad request: messageResponse)
@@ -116,14 +128,14 @@ public class PostController {
                                   @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
-        if (!postRepository.existsById(id))
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.like(id, username);
+        return answerService.like(id, username);
     }
 
     /**
-     * Method to add or remove dislike from post
+     * Method to add or remove dislike from answer
      * @param id
      * @param username (Gets from the jwt token)
      * @return ResponseEntity(ok: totalDislikes, bad request: messageResponse)
@@ -132,29 +144,29 @@ public class PostController {
     @PutMapping("/dislike/{id}")
     @ApiOperation("Adds or removes dislike, depending on the previous state. Authentication required (USER)")
     public ResponseEntity<?> dislike(@RequestParam Long id,
-                                    @CurrentSecurityContext(expression="authentication?.name") String username){
+                                     @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
-        if (!postRepository.existsById(id))
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.dislike(id, username);
+        return answerService.dislike(id, username);
     }
 
     /**
-     * Method to fix or unfix a post. ADMIN only
+     * Method to fix or unfix a answer. ADMIN only
      * @param id
      * @return ResponseEntity (MessageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/fix/{id}")
-    @ApiOperation("Fix post. Authentication required (ADMIN)")
+    @ApiOperation("Fix answer. Authentication required (ADMIN)")
     public ResponseEntity<?> fix(@RequestParam Long id){
 
         //Validates id
-        if (!postRepository.existsById(id))
+        if (!answerRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.fix(id);
+        return answerService.fix(id);
     }
 }

@@ -116,7 +116,7 @@ public class PostServiceImpl implements PostService{
     /**
      * Method to delete the post. Only authors and admins are allowed
      * @param id
-     * @param username (takes the username from the jwt token)
+     * @param username (gets the username from the jwt token)
      * @return ResponseEntity (ok: post, bad request: messageResponse)
      */
     @Override
@@ -150,7 +150,7 @@ public class PostServiceImpl implements PostService{
     /**
      * Method to add a like to the post. If the user has already liked the post, just removes the like
      * @param id
-     * @param username
+     * @param username (gets from the jwt token)
      * @return ResponseEntity(ok: totalLikes, bad request: messageResponse)
      */
     @Override
@@ -192,7 +192,7 @@ public class PostServiceImpl implements PostService{
     /**
      * Method to add a dislike to the post. If the user has already disliked the post, just removes the dislike
      * @param id
-     * @param username
+     * @param username (gets from the jwt token)
      * @return ResponseEntity(ok: totalLikes, bad request: messageResponse)
      */
     @Override
@@ -233,12 +233,12 @@ public class PostServiceImpl implements PostService{
     /**
      * Method to fix or unfix a post
      * @param id
-     * @return ResponseEntity (MessageResponse)
+     * @return ResponseEntity (ok: isFixed, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> fix(Long id) {
 
-        //Validates the id
+        //Gets the post
         Optional<Post> postOpt = postRepository.findById(id);
 
         if (postOpt.isEmpty())
@@ -253,6 +253,6 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok().body(new MessageResponse("Post " + id + " fixed with success"));
+        return ResponseEntity.ok(postOpt.get().isFixed());
     }
 }

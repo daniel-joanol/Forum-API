@@ -165,7 +165,7 @@ public class Answer {
         setTotalLikes(usersWhoLike.size());
     }
 
-    public void removeUsersWholike(User user){
+    public void removeUsersWhoLike(User user){
         usersWhoLike.remove(user);
         setTotalLikes(usersWhoLike.size());
     }
