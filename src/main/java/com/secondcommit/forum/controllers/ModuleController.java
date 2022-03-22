@@ -2,7 +2,7 @@ package com.secondcommit.forum.controllers;
 
 import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.repositories.ModuleRepository;
-import com.secondcommit.forum.repositories.PostRepository;
+import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.module.ModuleServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -19,13 +19,13 @@ public class ModuleController {
 
     private final ModuleServiceImpl moduleService;
     private final ModuleRepository moduleRepository;
-    private final PostRepository postRepository;
+    private final SubjectRepository subjectRepository;
 
     public ModuleController(ModuleServiceImpl moduleService, ModuleRepository moduleRepository,
-                            PostRepository postRepository){
+                            SubjectRepository subjectRepository){
         this.moduleService = moduleService;
         this.moduleRepository = moduleRepository;
-        this.postRepository = postRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -36,10 +36,10 @@ public class ModuleController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/{postId}")
     @ApiOperation("Creates new module. Authentication required (ADMIN)")
-    public ResponseEntity<?> newModule(@RequestParam Long postId, @RequestBody ModuleDto moduleDto){
+    public ResponseEntity<?> newModule(@PathVariable Long postId,@RequestBody ModuleDto moduleDto){
 
         //Validates id
-        if(!postRepository.existsById(postId))
+        if(!subjectRepository.existsById(postId))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Validates Dto

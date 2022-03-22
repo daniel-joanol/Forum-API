@@ -1,11 +1,9 @@
 package com.secondcommit.forum.services.subject;
 
-import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.SubjectDtoResponse;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Subject;
-import com.secondcommit.forum.entities.Module;
 import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.ModuleRepository;
 import com.secondcommit.forum.repositories.SubjectRepository;
@@ -63,26 +61,6 @@ public class SubjectServiceImpl implements SubjectService {
 
         Subject subject = new Subject(subjectDto.getName());
 
-        //Tests if it has Modules
-        if (subjectDto.getModules() != null){
-            Set<Module> modules = new HashSet<>();
-
-            for (ModuleDto moduleDto : subjectDto.getModules()){
-                // Tests the names to see if they already exists
-                Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
-
-                // If it exists, just adds to the set. If it doesn't, creates a new one
-                // If it doesn't have a description ignores it
-                if (moduleOpt.isPresent()){
-                    modules.add(moduleOpt.get());
-                }else if (moduleDto.getDescription() != null){
-                    modules.add(new Module(moduleDto.getName(), moduleDto.getDescription()));
-                }
-            }
-
-            subject.setModules(modules);
-        }
-
         //Upload image to Cloudinary
         try {
             File file = new File(cloudinary.uploadImage(subjectDto.getAvatar()));
@@ -95,7 +73,7 @@ public class SubjectServiceImpl implements SubjectService {
 
         subjectRepository.save(subject);
 
-        return ResponseEntity.ok(subject);
+        return ResponseEntity.ok(subject.getDtoFromSubject());
     }
 
     /**
@@ -127,12 +105,20 @@ public class SubjectServiceImpl implements SubjectService {
      * @return ResponseEntity (ok: Subject, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> getSubject(Long id){
+    public ResponseEntity<?> getSubject(Long id, String username){
 
         //Gets the id
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
 
-        return ResponseEntity.ok(subjectOpt.get());
+        //Gets user
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        for (Subject subject : userOpt.get().getHasAccess()){
+            if (subject == subjectOpt.get())
+                return ResponseEntity.ok(subjectOpt.get().getDtoFromSubject());
+        }
+
+        return ResponseEntity.noContent().build();
     }
 
     /**
@@ -148,7 +134,7 @@ public class SubjectServiceImpl implements SubjectService {
 
         Set<SubjectDtoResponse> response = new HashSet<>();
         for (Subject subject : userOpt.get().getHasAccess())
-            response.add(new SubjectDtoResponse(subject.getId(), subject.getName()));
+            response.add(subject.getDtoFromSubject());
 
         if (response.size() == 0)
             return ResponseEntity.noContent().build();
@@ -172,30 +158,9 @@ public class SubjectServiceImpl implements SubjectService {
         if (subjectDto.getName() != null)
             subjectOpt.get().setName(subjectDto.getName());
 
-        //Tests if it has Modules
-        if (subjectDto.getModules() != null){
-            Set<Module> modules = new HashSet<>();
-
-            for (ModuleDto moduleDto : subjectDto.getModules()){
-                // Tests the names to see if they already exists
-                Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
-
-                // If it exists, just adds to the set. If it doesn't, creates a new one
-                // If it doesn't have a description ignores it
-                if (moduleOpt.isPresent()){
-                    modules.add(moduleOpt.get());
-                }else if (moduleDto.getDescription() != null){
-                    modules.add(new Module(moduleDto.getName(), moduleDto.getDescription()));
-                }
-            }
-
-            //Updates modules
-            subjectOpt.get().setModules(modules);
-        }
-
         subjectRepository.save(subjectOpt.get());
 
-        return ResponseEntity.ok(subjectOpt.get());
+        return ResponseEntity.ok(subjectOpt.get().getDtoFromSubject());
     }
 
     /**

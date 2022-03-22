@@ -1,6 +1,10 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.ModuleDtoResponse;
+import com.secondcommit.forum.dto.SubjectDtoResponse;
+
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -98,5 +102,19 @@ public class Subject {
     public void removeModule(Module module){
         modules.remove(module);
         totalModules = modules.size();
+    }
+
+    public SubjectDtoResponse getDtoFromSubject(){
+        Set<ModuleDtoResponse> modulesDto = new HashSet<>();
+        String backupAvatar = "";
+
+        if (modules != null)
+            for (Module module : modules){
+                modulesDto.add(new ModuleDtoResponse(module.getId(), module.getName(), module.getDescription(), module.getTotalQuestions()));
+            }
+
+        if (avatar != null) backupAvatar = avatar.getUrl();
+
+        return new SubjectDtoResponse(id, name, backupAvatar , modulesDto);
     }
 }

@@ -1,5 +1,6 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.BasicSubjectDtoResponse;
 import com.secondcommit.forum.dto.UserResponseDto;
 
 import javax.persistence.*;
@@ -45,7 +46,7 @@ public class User {
                     @JoinColumn(name = "FILE_ID") })
     private File avatar;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_ROLES",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
@@ -54,7 +55,7 @@ public class User {
                     @JoinColumn(name = "ROLE_ID") })
     private Set<Role> roles = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
@@ -63,7 +64,7 @@ public class User {
                     @JoinColumn(name = "SUBJECT_ID") })
     private Set<Subject> followsSubject = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_HASACCESS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
@@ -72,7 +73,7 @@ public class User {
                     @JoinColumn(name = "SUBJECT_ID") })
     private Set<Subject> hasAccess = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_POST",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
@@ -249,14 +250,25 @@ public class User {
 
     //Other methods
 
-    public UserResponseDto getDtoFromUser(){
+    public UserResponseDto getDtoFromUser(String message){
 
         String urlAvatar = "";
-
         if (avatar != null) urlAvatar = avatar.getUrl();
 
+        Set<BasicSubjectDtoResponse> hasAccessDto = new HashSet<>();
+        if (hasAccess != null)
+            for (Subject subject : hasAccess){
+                hasAccessDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));
+            }
+
+        Set<BasicSubjectDtoResponse> followSubjectDto = new HashSet<>();
+        if (followsSubject != null)
+            for (Subject subject : followsSubject){
+                followSubjectDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));
+            }
+
         return new UserResponseDto(
-                id, email, username, urlAvatar, hasAccess, isActivated, followsSubject, followsPost
+                id, email, username, urlAvatar, hasAccessDto, isActivated, followSubjectDto, followsPost, message
         );
     }
 }

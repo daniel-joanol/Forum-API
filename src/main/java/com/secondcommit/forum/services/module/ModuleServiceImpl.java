@@ -53,7 +53,7 @@ public class ModuleServiceImpl implements ModuleService{
         moduleRepository.save(module);
         subjectRepository.save(subjectOpt.get());
 
-        return ResponseEntity.ok(module);
+        return ResponseEntity.ok(module.getDtoFromModule());
     }
 
     /**

@@ -49,13 +49,13 @@ public class SubjectController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
     @ApiOperation("Gets all subject data. Authentication required (USER)")
-    public ResponseEntity<?> getSubject(@PathVariable Long id){
+    public ResponseEntity<?> getSubject(@PathVariable Long id, @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates the subject
         if (!subjectRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return subjectService.getSubject(id);
+        return subjectService.getSubject(id, username);
     }
 
     /**
@@ -79,10 +79,10 @@ public class SubjectController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
     @ApiOperation("Updates subject data. Authentication required (ADMIN)")
-    public ResponseEntity<?> updateSubject(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
+    public ResponseEntity<?> updateSubject(@PathVariable Long id, SubjectDto subjectDto){
 
         //Validates DTO
-        if (subjectDto.getName() == null && subjectDto.getModules() == null)
+        if (subjectDto.getName() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
         //Validates ID

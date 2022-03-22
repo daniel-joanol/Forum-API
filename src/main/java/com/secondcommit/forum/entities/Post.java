@@ -1,5 +1,7 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.PostDto;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;

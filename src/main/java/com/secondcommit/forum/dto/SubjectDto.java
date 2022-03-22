@@ -10,15 +10,13 @@ import java.util.Set;
 public class SubjectDto {
 
     private String name;
-    private Set<ModuleDto> modules;
     private MultipartFile avatar;
 
     public SubjectDto() {
     }
 
-    public SubjectDto(String name, Set<ModuleDto> modules) {
+    public SubjectDto(String name) {
         this.name = name;
-        this.modules = modules;
     }
 
     public String getName() {
@@ -27,14 +25,6 @@ public class SubjectDto {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Set<ModuleDto> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<ModuleDto> modules) {
-        this.modules = modules;
     }
 
     public MultipartFile getAvatar() {

@@ -1,7 +1,6 @@
 package com.secondcommit.forum.dto;
 
 import com.secondcommit.forum.entities.Post;
-import com.secondcommit.forum.entities.Subject;
 
 import java.util.Set;
 
@@ -10,21 +9,21 @@ import java.util.Set;
  */
 public class UserResponseDto {
 
-    private String message = "Check your email account";
+    private String message;
     private Long id;
     private String email;
     private String username;
     private String avatar;
-    private Set<Subject> hasAccess;
+    private Set<BasicSubjectDtoResponse> hasAccess;
     private boolean isActivated;
-    private Set<Subject> followsSubject;
+    private Set<BasicSubjectDtoResponse> followsSubject;
     private Set<Post> followsPost;
 
     public UserResponseDto() {
     }
 
-    public UserResponseDto(Long id, String email, String username, String avatar, Set<Subject> hasAccess,
-                           boolean isActivated, Set<Subject> followsSubject, Set<Post> followsPost) {
+    public UserResponseDto(Long id, String email, String username, String avatar, Set<BasicSubjectDtoResponse> hasAccess,
+                           boolean isActivated, Set<BasicSubjectDtoResponse> followsSubject, Set<Post> followsPost, String message) {
         this.id = id;
         this.email = email;
         this.username = username;
@@ -33,6 +32,7 @@ public class UserResponseDto {
         this.isActivated = isActivated;
         this.followsSubject = followsSubject;
         this.followsPost = followsPost;
+        this.message = message;
     }
 
     public String getMessage() {
@@ -75,11 +75,11 @@ public class UserResponseDto {
         this.avatar = avatar;
     }
 
-    public Set<Subject> getHasAccess() {
+    public Set<BasicSubjectDtoResponse> getHasAccess() {
         return hasAccess;
     }
 
-    public void setHasAccess(Set<Subject> hasAccess) {
+    public void setHasAccess(Set<BasicSubjectDtoResponse> hasAccess) {
         this.hasAccess = hasAccess;
     }
 
@@ -91,11 +91,11 @@ public class UserResponseDto {
         isActivated = activated;
     }
 
-    public Set<Subject> getFollowsSubject() {
+    public Set<BasicSubjectDtoResponse> getFollowsSubject() {
         return followsSubject;
     }
 
-    public void setFollowsSubject(Set<Subject> followsSubject) {
+    public void setFollowsSubject(Set<BasicSubjectDtoResponse> followsSubject) {
         this.followsSubject = followsSubject;
     }
 

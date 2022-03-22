@@ -95,19 +95,21 @@ public class UserServiceImpl implements UserService{
                 if (subjectOpt.isPresent())
                     validSubjects.add(subjectOpt.get());
             }
-
-            user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), roles, validSubjects);
         }
 
+        user = new User(newUser.getEmail(), newUser.getUsername(),
+                encoder.encode(newUser.getPassword()), roles, validSubjects);
+
         //Saves image in Cloudinary
-        try {
-            File photo = new File(cloudinary.uploadImage(newUser.getAvatar()));
-            user.setAvatar(photo);
-        } catch (Exception e){
-            System.err.println("Error: " + e.getMessage());
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("Upload failed"));
+        if (newUser.getAvatar() != null){
+            try {
+                File photo = new File(cloudinary.uploadImage(newUser.getAvatar()));
+                user.setAvatar(photo);
+            } catch (Exception e){
+                System.err.println("Error: " + e.getMessage());
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Upload failed"));
+            }
         }
 
         //Saves the user in the database
@@ -120,7 +122,7 @@ public class UserServiceImpl implements UserService{
             System.err.println("Error: " + e.getMessage());
         }
 
-        return ResponseEntity.ok().body(user.getDtoFromUser());
+        return ResponseEntity.ok().body(user.getDtoFromUser("Check your email account"));
     }
 
     /**
@@ -189,7 +191,7 @@ public class UserServiceImpl implements UserService{
         //Gets User
         Optional<User> userOpt = userRepository.findById(id);
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser(" "));
     }
 
     /**
@@ -204,10 +206,11 @@ public class UserServiceImpl implements UserService{
 
         //Gets User
         Optional<User> userOpt = userRepository.findById(id);
+        Optional<User> userConnecting = userRepository.findByUsername(username);
 
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
         //If the user isn't the one trying to update, checks to see if the user is ADMIN
-        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+        if (!userConnecting.get().getUsername().equalsIgnoreCase(username)){
 
             boolean isAdmin = false;
 
@@ -249,7 +252,7 @@ public class UserServiceImpl implements UserService{
             System.out.println("Error :" + e.getMessage());
         }
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Your account has been updated"));
     }
 
     /**
@@ -262,6 +265,7 @@ public class UserServiceImpl implements UserService{
 
         //Gets the user
         Optional<User> userOpt = userRepository.findById(id);
+        Optional<User> userConnecting = userRepository.findByUsername(username);
 
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
         //If the user isn't the one trying to delete, checks to see if the user is ADMIN
@@ -269,7 +273,7 @@ public class UserServiceImpl implements UserService{
 
             boolean isAdmin = false;
 
-            for (Role role  : userOpt.get().getRoles()){
+            for (Role role  : userConnecting.get().getRoles()){
                 if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
             }
 
@@ -312,7 +316,7 @@ public class UserServiceImpl implements UserService{
         userOpt.get().addAccess(subjectOpt.get());
         userRepository.save(userOpt.get());
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Added access to the subject " + subjectDto.getName()));
     }
 
     /**
@@ -336,6 +340,6 @@ public class UserServiceImpl implements UserService{
         userOpt.get().removeAccess(subjectOpt.get());
         userRepository.save(userOpt.get());
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Removed access from subject " + subjectDto.getName()));
     }
 }

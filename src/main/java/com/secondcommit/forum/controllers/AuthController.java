@@ -90,7 +90,7 @@ public class AuthController {
      */
     @PostMapping("/new-user")
     @ApiOperation("Creates new user")
-    public ResponseEntity<?> newUser(@RequestParam NewUserRequest newUser){
+    public ResponseEntity<?> newUser(NewUserRequest newUser){
 
         //Validates the DTO
         if (newUser.getUsername() != null &&
