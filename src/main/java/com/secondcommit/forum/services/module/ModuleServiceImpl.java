@@ -67,7 +67,7 @@ public class ModuleServiceImpl implements ModuleService{
         //Gets the module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
-        return ResponseEntity.ok(moduleOpt.get());
+        return ResponseEntity.ok(moduleOpt.get().getDtoFromModule());
     }
 
     /**
@@ -91,7 +91,7 @@ public class ModuleServiceImpl implements ModuleService{
 
         moduleRepository.save(moduleOpt.get());
 
-        return ResponseEntity.ok(moduleOpt.get());
+        return ResponseEntity.ok(moduleOpt.get().getDtoFromModule());
     }
 
     /**

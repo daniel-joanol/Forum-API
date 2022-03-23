@@ -33,7 +33,7 @@ public class Subject {
                     @JoinColumn(name = "AVATAR_ID") })
     private File avatar;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "SUBJECT_MODULES",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
@@ -117,4 +117,6 @@ public class Subject {
 
         return new SubjectDtoResponse(id, name, backupAvatar , modulesDto);
     }
+
+    //TODO: Delete module doesn't work, together with other delete methods. I need to study the relations between entities
 }

@@ -37,7 +37,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/{moduleId}")
     @ApiOperation("Creates new post. Authentication required (USER)")
-    public ResponseEntity<?> newPost(@RequestParam Long moduleId, PostDto postDto,
+    public ResponseEntity<?> newPost(@PathVariable Long moduleId, PostDto postDto,
                                      @CurrentSecurityContext(expression="authentication?.name") String username) {
 
         //Validates module id
@@ -49,8 +49,9 @@ public class PostController {
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
         //Validates length of MultipartFile[]
-        if (postDto.getFiles().length > 5)
-            return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
+        if (postDto.getFiles() != null)
+            if (postDto.getFiles().length > 5)
+                return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
 
         return postService.addPost(moduleId, postDto, username);
     }
@@ -82,7 +83,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/{id}")
     @ApiOperation("Updates the post. Authentication required (USER)")
-    public ResponseEntity<?> updatePost(@PathVariable Long id, @RequestBody PostDto postDto,
+    public ResponseEntity<?> updatePost(@PathVariable Long id, PostDto postDto,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates Dto
@@ -92,6 +93,10 @@ public class PostController {
         //Validates id
         if (!postRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        if (postDto.getFiles() != null)
+            if (postDto.getFiles().length > 5)
+                return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
 
         return postService.updatePost(id, postDto, username);
     }
@@ -105,7 +110,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @DeleteMapping("/{id}")
     @ApiOperation("Deletes the post. Authentication required (USER)")
-    public ResponseEntity<?> deletePost(@RequestParam Long id,
+    public ResponseEntity<?> deletePost(@PathVariable Long id,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -124,7 +129,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/like/{id}")
     @ApiOperation("Adds or removes like, depending on the previous state. Authentication required (USER)")
-    public ResponseEntity<?> like(@RequestParam Long id,
+    public ResponseEntity<?> like(@PathVariable Long id,
                                   @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -143,7 +148,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/dislike/{id}")
     @ApiOperation("Adds or removes dislike, depending on the previous state. Authentication required (USER)")
-    public ResponseEntity<?> dislike(@RequestParam Long id,
+    public ResponseEntity<?> dislike(@PathVariable Long id,
                                     @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -161,7 +166,7 @@ public class PostController {
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/fix/{id}")
     @ApiOperation("Fix post. Authentication required (ADMIN)")
-    public ResponseEntity<?> fix(@RequestParam Long id){
+    public ResponseEntity<?> fix(@PathVariable Long id){
 
         //Validates id
         if (!postRepository.existsById(id))

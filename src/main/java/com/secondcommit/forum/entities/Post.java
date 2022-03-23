@@ -1,6 +1,7 @@
 package com.secondcommit.forum.entities;
 
-import com.secondcommit.forum.dto.PostDto;
+import com.secondcommit.forum.dto.BasicUserDto;
+import com.secondcommit.forum.dto.PostDtoResponse;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -240,5 +241,32 @@ public class Post {
 
     public void setTotalAnswers(int totalAnswers) {
         this.totalAnswers = totalAnswers;
+    }
+
+    public PostDtoResponse getDtoFromPost(){
+
+        Set<String> filesUrl = new HashSet<>();
+        if (files != null){
+            for (File file : files){
+                filesUrl.add(file.getUrl());
+            }
+        }
+
+        Set<BasicUserDto> basicUsersWhoLike = new HashSet<>();
+        if (usersWhoLike != null){
+            for (User user : usersWhoLike){
+                basicUsersWhoLike.add(new BasicUserDto(user.getId(), user.getUsername()));
+            }
+        }
+
+        Set<BasicUserDto> basicUsersWhoDislike = new HashSet<>();
+        if (usersWhoDislike != null){
+            for (User user : usersWhoDislike){
+                basicUsersWhoDislike.add(new BasicUserDto(user.getId(), user.getUsername()));
+            }
+        }
+
+        return new PostDtoResponse(id, title, content, author.getUsername(), totalLikes,
+                totalDislikes, date, fixed, answers, totalAnswers, filesUrl, basicUsersWhoLike, basicUsersWhoDislike);
     }
 }

@@ -48,7 +48,6 @@ public class JwtTokenUtil {
         if (remember){
             return Jwts.builder()
                     .setSubject((userPrincipal.getUsername()))
-                    // TODO: añadir autoridad al token
                     .claim(AUTHORITIES_KEY, authorities)
                     .setIssuedAt(new Date())
                     .signWith(SignatureAlgorithm.HS512, JWT_SECRET)
@@ -56,7 +55,6 @@ public class JwtTokenUtil {
         } else {
             return Jwts.builder()
                     .setSubject((userPrincipal.getUsername()))
-                    // TODO: añadir autoridad al token
                     .claim(AUTHORITIES_KEY, authorities)
                     .setIssuedAt(new Date())
                     .setExpiration(new Date((new Date()).getTime() + JWT_EXPIRATION_MS))

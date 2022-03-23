@@ -10,3 +10,5 @@ I also use:
 - JWT for authentication;
 - SparkPost to send emails;
 - Cloudinary to upload images into the cloud.
+
+PS.: I'm still learning, and I appreciate any bug report or advice you can give me. My email is joanoldaniel@gmail.com.

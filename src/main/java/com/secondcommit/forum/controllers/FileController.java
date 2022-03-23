@@ -22,14 +22,14 @@ import java.util.Optional;
  */
 @RestController
 @RequestMapping("/api/image")
-public class FileUploadController {
+public class FileController {
 
     private final UserServiceImpl userService;
     private final SubjectServiceImpl subjectService;
     private final SubjectRepository subjectRepository;
 
-    public FileUploadController(UserServiceImpl userService, SubjectServiceImpl subjectService,
-                                SubjectRepository subjectRepository) {
+    public FileController(UserServiceImpl userService, SubjectServiceImpl subjectService,
+                          SubjectRepository subjectRepository) {
         this.userService = userService;
         this.subjectService = subjectService;
         this.subjectRepository = subjectRepository;
@@ -42,7 +42,7 @@ public class FileUploadController {
      * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("/upload-avatar/user")
+    @PostMapping("/user")
     @ApiOperation("Uploads the user avatar")
     public ResponseEntity<?> uploadAvatarToUser(@CurrentSecurityContext(expression="authentication?.name") String username,
                                           MultipartFile avatar){
@@ -61,7 +61,7 @@ public class FileUploadController {
      * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/upload-avatar/subject/{id}")
+    @PostMapping("/subject/{id}")
     @ApiOperation("Uploads the user avatar")
     public ResponseEntity<?> uploadAvatarToSubject(@PathVariable Long id, MultipartFile avatar){
 

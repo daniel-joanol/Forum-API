@@ -57,4 +57,6 @@ public class CloudinaryServiceImpl implements CloudinaryService{
 
         return response.get("secure_url").toString();
     }
+
+    //TODO: Research how to delete a photo from Cloudinary
 }

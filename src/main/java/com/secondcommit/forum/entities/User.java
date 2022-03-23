@@ -34,7 +34,6 @@ public class User {
     private Integer validationCode;
 
     @Column
-
     private Integer activationCode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

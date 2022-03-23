@@ -66,15 +66,17 @@ public class PostServiceImpl implements PostService{
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
         //Upload images to Cloudinary
-        for (MultipartFile image : postDto.getFiles()){
-            //Saves image in Cloudinary
-            try {
-                File photo = new File(cloudinary.uploadImage(image));
-                postOpt.get().addFile(photo);
-            } catch (Exception e){
-                System.err.println("Error: " + e.getMessage());
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("Upload failed"));
+        if (postDto.getFiles() != null){
+            for (MultipartFile image : postDto.getFiles()){
+                //Saves image in Cloudinary
+                try {
+                    File photo = new File(cloudinary.uploadImage(image));
+                    postOpt.get().addFile(photo);
+                } catch (Exception e){
+                    System.err.println("Error: " + e.getMessage());
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Upload failed"));
+                }
             }
         }
 
@@ -84,7 +86,7 @@ public class PostServiceImpl implements PostService{
         postRepository.save(post);
         moduleRepository.save(moduleOpt.get());
 
-        return ResponseEntity.ok(post);
+        return ResponseEntity.ok(post.getDtoFromPost());
     }
 
     /**
@@ -98,7 +100,7 @@ public class PostServiceImpl implements PostService{
         //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
 
-        return ResponseEntity.ok(postOpt.get());
+        return ResponseEntity.ok(postOpt.get().getDtoFromPost());
     }
 
     /**
@@ -132,6 +134,21 @@ public class PostServiceImpl implements PostService{
                         .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
         }
 
+        //Upload images to Cloudinary
+        if (postDto.getFiles() != null){
+            for (MultipartFile image : postDto.getFiles()){
+                //Saves image in Cloudinary
+                try {
+                    File photo = new File(cloudinary.uploadImage(image));
+                    postOpt.get().addFile(photo);
+                } catch (Exception e){
+                    System.err.println("Error: " + e.getMessage());
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Upload failed"));
+                }
+            }
+        }
+
         //Updates the post
         if (postDto.getTitle() != null)
             postOpt.get().setTitle(postDto.getTitle());
@@ -141,7 +158,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get());
+        return ResponseEntity.ok(postOpt.get().getDtoFromPost());
     }
 
     /**
