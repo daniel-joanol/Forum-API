@@ -63,7 +63,7 @@ public class UserServiceImpl implements UserService{
      * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> createUser(NewUserRequest newUser) {
+    public ResponseEntity<?> createUser(NewUserRequest newUser, String roleName) {
 
         //Access the repository to check if the username and/or email aren't being used yet
         Optional<User> userOpt = userRepository.findByUsername(newUser.getUsername());
@@ -82,9 +82,10 @@ public class UserServiceImpl implements UserService{
         User user = new User();
 
         Set<Role> roles = new HashSet<>();
-
-        List<Role> rolesRepo = roleRepository.findAll();
         roles.add(roleRepository.findByName("USER").get());
+
+        if (roleName.equalsIgnoreCase("ADMIN"))
+            roles.add(roleRepository.findByName("ADMIN").get());
 
         //Validates subjects
         Set<Subject> validSubjects = new HashSet<>();

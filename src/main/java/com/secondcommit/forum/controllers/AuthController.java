@@ -96,7 +96,25 @@ public class AuthController {
         if (newUser.getUsername() != null &&
                 newUser.getEmail() != null &&
                 newUser.getPassword() != null)
-            return userService.createUser(newUser);
+            return userService.createUser(newUser, "USER");
+
+        return ResponseEntity.badRequest()
+                .body(new MessageResponse("Missing parameters"));
+    }
+
+    /**
+     * Method to create a new user with ADMIN role
+     * @param newUser
+     * @return ResponseEntity
+     */
+    @PostMapping("/new-user")
+    public ResponseEntity<?> newUserAdmin(NewUserRequest newUser){
+
+        //Validates the DTO
+        if (newUser.getUsername() != null &&
+                newUser.getEmail() != null &&
+                newUser.getPassword() != null)
+            return userService.createUser(newUser, "ADMIN");
 
         return ResponseEntity.badRequest()
                 .body(new MessageResponse("Missing parameters"));
@@ -174,6 +192,4 @@ public class AuthController {
 
         return authService.setNewPass(userOpt.get(), newPassRequest.getNewPass(), newPassRequest.getValidationCode());
     }
-
-    //TODO: Method to create user admin
 }

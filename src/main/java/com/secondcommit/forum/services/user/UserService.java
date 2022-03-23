@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserService {
 
-    ResponseEntity<?> createUser(NewUserRequest newUser);
+    ResponseEntity<?> createUser(NewUserRequest newUser, String roleName);
     ResponseEntity<?> activateUser(User user, Integer activationCode);
     ResponseEntity<?> addAvatar(String username, MultipartFile avatar);
     ResponseEntity<?> getUser(Long id);
