@@ -16,11 +16,15 @@ public class File {
     @Column
     private String url;
 
+    @Column
+    private String cloudinaryId;
+
     public File() {
     }
 
-    public File(String url) {
+    public File(String url, String cloudinaryId) {
         this.url = url;
+        this.cloudinaryId = cloudinaryId;
     }
 
     public Long getId() {
@@ -37,5 +41,13 @@ public class File {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public String getCloudinaryId() {
+        return cloudinaryId;
+    }
+
+    public void setCloudinaryId(String cloudinaryId) {
+        this.cloudinaryId = cloudinaryId;
     }
 }

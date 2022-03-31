@@ -20,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -104,7 +105,7 @@ public class UserServiceImpl implements UserService{
         //Saves image in Cloudinary
         if (newUser.getAvatar() != null){
             try {
-                File photo = new File(cloudinary.uploadImage(newUser.getAvatar()));
+                File photo = cloudinary.uploadImage(newUser.getAvatar());
                 user.setAvatar(photo);
             } catch (Exception e){
                 System.err.println("Error: " + e.getMessage());
@@ -166,9 +167,21 @@ public class UserServiceImpl implements UserService{
         //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
 
+        //Checks if the user already has a file. If yes, destroys it
+        if (userOpt.get().getAvatar() != null){
+
+            try {
+                Boolean destroyed = cloudinary.deleteFile(userOpt.get().getAvatar().getCloudinaryId());
+                if (destroyed) userOpt.get().setAvatar(null);
+
+            } catch (IOException e){
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
+
         //Saves image in Cloudinary
         try {
-            File photo = new File(cloudinary.uploadImage(avatar));
+            File photo = cloudinary.uploadImage(avatar);
             userOpt.get().setAvatar(photo);
             userRepository.save(userOpt.get());
         } catch (Exception e){
@@ -282,6 +295,18 @@ public class UserServiceImpl implements UserService{
                 return ResponseEntity.badRequest()
                         .body(new MessageResponse("The user " + username + " is not allowed to delete the user " +
                                 userOpt.get().getUsername()));
+        }
+
+        //Checks if the user already has a file. If yes, destroys it
+        if (userOpt.get().getAvatar() != null){
+
+            try {
+                Boolean destroyed = cloudinary.deleteFile(userOpt.get().getAvatar().getCloudinaryId());
+                if (destroyed) userOpt.get().setAvatar(null);
+
+            } catch (IOException e){
+                System.err.println("Error: " + e.getMessage());
+            }
         }
 
         userRepository.delete(userOpt.get());

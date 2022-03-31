@@ -107,7 +107,7 @@ public class AuthController {
      * @param newUser
      * @return ResponseEntity
      */
-    @PostMapping("/new-user")
+    @PostMapping("/new-user-admin")
     public ResponseEntity<?> newUserAdmin(NewUserRequest newUser){
 
         //Validates the DTO

@@ -2,15 +2,20 @@ package com.secondcommit.forum.services.cloudinary;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.exceptions.EmptyFileException;
 import com.secondcommit.forum.exceptions.InvalidFileFormatException;
+import com.secondcommit.forum.repositories.FileRepository;
+import com.secondcommit.forum.repositories.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Implements the methods specified on CloudinaryService (to upload and store files in the cloud)
@@ -31,32 +36,70 @@ public class CloudinaryServiceImpl implements CloudinaryService{
 
     Cloudinary cloudinary = new Cloudinary(params);
 
+    @Autowired
+    private FileRepository fileRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    public CloudinaryServiceImpl(FileRepository fileRepository, UserRepository userRepository) {
+        this.fileRepository = fileRepository;
+        this.userRepository = userRepository;
+    }
+
     /**
-     * Methos that uploads files
+     * Method to upload files
      * @param file
-     * @return String (url of the uploaded file)
+     * @return File
      * @throws EmptyFileException
      * @throws InvalidFileFormatException
      * @throws IOException
      */
     @Override
-    public String uploadImage(MultipartFile file) throws EmptyFileException, InvalidFileFormatException, IOException {
+    public File uploadImage(MultipartFile file) throws EmptyFileException, InvalidFileFormatException, IOException {
+
         log.warn(file.getContentType());
+
         if (file.isEmpty()) {
             String message = "Error: El archivo está vacío";
             log.error(message);
             throw new EmptyFileException(message);
+
         } else if (!file.getContentType().equalsIgnoreCase("image/jpeg") &&
                 !file.getContentType().equalsIgnoreCase("image/jpg")){
             String message = "Error: El formato del archivo es incorrecto. Formatos admitidos 'jpg' y '.jpeg'";
             log.error(message);
             throw new InvalidFileFormatException(message);
         }
-        Map response = cloudinary.uploader().upload((file.getBytes()),
-                ObjectUtils.emptyMap());
 
-        return response.get("secure_url").toString();
+        File newFile = new File();
+
+        //Saves url and Cloudinary ID
+        Map response = cloudinary.uploader().upload((file.getBytes()), ObjectUtils.emptyMap());
+        response.forEach((key, value) -> {
+            if (Objects.equals(key, "secure_url"))  newFile.setUrl((String) value);
+            if (Objects.equals(key, "public_id")) newFile.setCloudinaryId((String) value);
+        });
+
+        return newFile;
     }
 
-    //TODO: Research how to delete a photo from Cloudinary
+    /**
+     * Method to remove a file from Cloudinary
+     * @param cloudinaryId (String)
+     * @return Boolean
+     * @throws IOException
+     */
+    @Override
+    public Boolean deleteFile(String cloudinaryId) throws IOException {
+
+        if (fileRepository.existsByCloudinaryId(cloudinaryId)) {
+            cloudinary.uploader().destroy(cloudinaryId, ObjectUtils.emptyMap());
+            fileRepository.delete(fileRepository.findByCloudinaryId(cloudinaryId));
+
+            return true;
+        }
+
+        return false;
+    }
 }

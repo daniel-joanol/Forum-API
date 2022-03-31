@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class SubjectServiceImpl implements SubjectService {
 
         //Upload image to Cloudinary
         try {
-            File file = new File(cloudinary.uploadImage(subjectDto.getAvatar()));
+            File file = cloudinary.uploadImage(subjectDto.getAvatar());
             subject.setAvatar(file);
 
         } catch (Exception e){
@@ -85,9 +86,22 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public ResponseEntity<?> addAvatarToSubject(Subject subject, MultipartFile avatar) {
 
+        //Checks if the user already has a file. If yes, destroys it
+        if (subject.getAvatar() != null){
+
+            try {
+                Boolean destroyed = cloudinary.deleteFile(subject.getAvatar().getCloudinaryId());
+                if (destroyed) subject.setAvatar(null);
+
+            } catch (IOException e){
+                System.err.println("Error: " + e.getMessage());
+            }
+
+        }
+
         //Upload image to Cloudinary
         try {
-            File file = new File(cloudinary.uploadImage(avatar));
+            File file = cloudinary.uploadImage(avatar);
             subject.setAvatar(file);
             subjectRepository.save(subject);
 
@@ -158,6 +172,30 @@ public class SubjectServiceImpl implements SubjectService {
         if (subjectDto.getName() != null)
             subjectOpt.get().setName(subjectDto.getName());
 
+        //Checks if the user already has a file. If yes, destroys it
+        if (subjectDto.getAvatar() != null){
+
+            if (subjectOpt.get().getAvatar() != null){
+                try {
+                    Boolean destroyed = cloudinary.deleteFile(subjectOpt.get().getAvatar().getCloudinaryId());
+                    if (destroyed) subjectOpt.get().setAvatar(null);
+
+                } catch (IOException e){
+                    System.err.println("Error: " + e.getMessage());
+                }
+            }
+
+            //Upload image to Cloudinary
+            try {
+                File file = cloudinary.uploadImage(subjectDto.getAvatar());
+                subjectOpt.get().setAvatar(file);
+
+            } catch (Exception e){
+                System.err.println("Error : " + e.getMessage());
+                return ResponseEntity.badRequest().body(new MessageResponse("Failed to upload avatar"));
+            }
+        }
+
         subjectRepository.save(subjectOpt.get());
 
         return ResponseEntity.ok(subjectOpt.get().getDtoFromSubject());
@@ -174,7 +212,19 @@ public class SubjectServiceImpl implements SubjectService {
         //Gets the subject
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
 
-        subjectRepository.delete(subjectOpt.get());
+        //Checks if the subject has an avatar. If yes, destroys it
+        if (subjectOpt.get().getAvatar() != null) {
+
+            try {
+                Boolean destroyed = cloudinary.deleteFile(subjectOpt.get().getAvatar().getCloudinaryId());
+                if (destroyed) subjectOpt.get().setAvatar(null);
+
+            } catch (IOException e) {
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
+
+            subjectRepository.delete(subjectOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Subject " + id + " deleted with success"));
     }

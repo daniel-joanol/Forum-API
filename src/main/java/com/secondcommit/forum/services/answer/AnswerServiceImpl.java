@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -63,7 +64,7 @@ public class AnswerServiceImpl implements AnswerService{
         for (MultipartFile image : answerDto.getFiles()){
             //Saves image in Cloudinary
             try {
-                File photo = new File(cloudinary.uploadImage(image));
+                File photo = cloudinary.uploadImage(image);
                 files.add(photo);
             } catch (Exception e){
                 System.err.println("Error: " + e.getMessage());
@@ -113,6 +114,35 @@ public class AnswerServiceImpl implements AnswerService{
         if (answerOpt.get().getAuthor() != userOpt.get())
             return ResponseEntity.badRequest().body(new MessageResponse("The answer doesn't belong to this user"));
 
+        //If it already has files, removes them
+        if (answerOpt.get().getFiles() != null) {
+            for (File file : answerOpt.get().getFiles()){
+
+                try {
+                    Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
+                    if (destroyed) answerOpt.get().removeFile(file);
+
+                } catch (IOException e){
+                    System.err.println("Error: " + e.getMessage());
+                }
+            }
+        }
+
+        //Upload images to Cloudinary
+        if (answerDto.getFiles() != null){
+            for (MultipartFile image : answerDto.getFiles()){
+                //Saves image in Cloudinary
+                try {
+                    File photo = cloudinary.uploadImage(image);
+                    answerOpt.get().addFile(photo);
+                } catch (Exception e){
+                    System.err.println("Error: " + e.getMessage());
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Upload failed"));
+                }
+            }
+        }
+
         answerOpt.get().setContent(answerDto.getContent());
         answerRepository.save(answerOpt.get());
 
@@ -146,6 +176,19 @@ public class AnswerServiceImpl implements AnswerService{
             if (!isAdmin)
                 return ResponseEntity.badRequest()
                         .body(new MessageResponse("The user " + username + " is not allowed to update the answer"));
+        }
+
+        //Remove files
+        if (answerOpt.get().getFiles() != null){
+            for (File file : answerOpt.get().getFiles()){
+                try {
+                    Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
+                    if (destroyed) answerOpt.get().removeFile(file);
+
+                } catch (IOException e){
+                    System.err.println("Error: " + e.getMessage());
+                }
+            }
         }
 
         answerRepository.delete(answerOpt.get());
