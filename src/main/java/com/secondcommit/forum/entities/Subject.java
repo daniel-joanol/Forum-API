@@ -18,10 +18,10 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "total_modules")
     private Integer totalModules = 0;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

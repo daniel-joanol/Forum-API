@@ -16,13 +16,13 @@ public class Module {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String description;
 
-    @Column
+    @Column(name = "total_questions")
     private Integer totalQuestions = 0;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

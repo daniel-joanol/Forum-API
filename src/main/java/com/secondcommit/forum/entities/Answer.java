@@ -16,7 +16,7 @@ public class Answer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(length = 1048, nullable = false)
     private String content;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -31,16 +31,14 @@ public class Answer {
                     @JoinColumn(name = "FILE_ID") })
     private Set<File> files = new HashSet<>();
 
-    @Column
     private Date date = new Date();
 
-    @Column
     private boolean fixed = false;
 
-    @Column
+    @Column(name = "total_likes")
     private int totalLikes = 0;
 
-    @Column
+    @Column(name = "total_dislikes")
     private int totalDislikes = 0;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

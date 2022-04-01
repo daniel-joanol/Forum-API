@@ -13,10 +13,10 @@ public class File {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String url;
 
-    @Column
+    @Column(name = "cloudinary_id", nullable = false)
     private String cloudinaryId;
 
     public File() {

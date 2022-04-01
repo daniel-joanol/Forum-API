@@ -18,22 +18,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
-    @Column
+    @Column(name = "is_activated")
     private Boolean isActivated = false;
 
-    @Column
+    @Column(name = "validation_code")
     private Integer validationCode;
 
-    @Column
+    @Column(name = "activation_code")
     private Integer activationCode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

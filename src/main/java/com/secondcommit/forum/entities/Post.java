@@ -22,22 +22,20 @@ public class Post {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private User author;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(length = 1048, nullable = false)
     private String content;
 
-    @Column
+    @Column(name = "total_likes")
     private int totalLikes = 0;
 
-    @Column
+    @Column(name = "total_dislikes")
     private int totalDislikes = 0;
 
-    @Column
     private Date date = new Date();
 
-    @Column
     private boolean fixed = false;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

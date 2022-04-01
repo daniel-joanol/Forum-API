@@ -120,4 +120,7 @@ public class UserController {
 
         return userService.removeAccess(id, subjectDto);
     }
+
+    //TODO: get all users
+    //TODO: validate username before updating
 }
