@@ -3,6 +3,7 @@ package com.secondcommit.forum.services.user;
 import com.secondcommit.forum.dto.NewUserRequest;
 import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.UpdateUserDto;
+import com.secondcommit.forum.dto.UserResponseDto;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Role;
 import com.secondcommit.forum.entities.Subject;
@@ -209,6 +210,22 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
+     * Method to get all users
+     * @return user
+     */
+    @Override
+    public ResponseEntity<?> getAllUsers() {
+
+        //Gets all users
+        List<User> users = userRepository.findAll();
+        List<UserResponseDto> response = new ArrayList<UserResponseDto>();
+
+        for (User user : users) response.add(user.getDtoFromUser(" "));
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Method to update User (only username, email, isActivated, hasAccess(Set<String>)
      * Sends an alert email after the update
      * @param id
@@ -236,6 +253,18 @@ public class UserServiceImpl implements UserService{
                 return ResponseEntity.badRequest()
                         .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
         }
+
+        //Validates username
+        if (userOpt.get().getUsername() != userDto.getUsername() &&
+                userRepository.existsByUsername(userDto.getUsername()))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("This username is already being used" ));
+
+        //Validates email
+        if (userOpt.get().getEmail() != userDto.getEmail() &&
+                userRepository.existsByEmail(userDto.getEmail()))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("This email is already being used" ));
 
         //Starts updating
         userOpt.get().setUsername(userDto.getUsername());
@@ -368,4 +397,5 @@ public class UserServiceImpl implements UserService{
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser("Removed access from subject " + subjectDto.getName()));
     }
+
 }

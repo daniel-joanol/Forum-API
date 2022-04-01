@@ -33,7 +33,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets all user data. Authentication required (USER)")
+    @ApiOperation("Gets user data. Authentication required (USER)")
     public ResponseEntity<?> getUser(@PathVariable Long id){
 
         //Validates the id
@@ -42,6 +42,17 @@ public class UserController {
                     .body(new MessageResponse("The user id " + id + " doesn't exist!"));
 
         return userService.getUser(id);
+    }
+
+    /**
+     * Gets all users
+     * @return users
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/all")
+    @ApiOperation("Gets all users data. Authentication required (USER)")
+    public ResponseEntity<?> getAllUsers(){
+        return userService.getAllUsers();
     }
 
     /**
@@ -120,7 +131,4 @@ public class UserController {
 
         return userService.removeAccess(id, subjectDto);
     }
-
-    //TODO: get all users
-    //TODO: validate username before updating
 }
