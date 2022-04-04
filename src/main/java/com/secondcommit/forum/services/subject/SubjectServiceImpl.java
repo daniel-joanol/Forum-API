@@ -63,13 +63,15 @@ public class SubjectServiceImpl implements SubjectService {
         Subject subject = new Subject(subjectDto.getName());
 
         //Upload image to Cloudinary
-        try {
-            File file = cloudinary.uploadImage(subjectDto.getAvatar());
-            subject.setAvatar(file);
+        if (subjectDto.getAvatar() != null){
+            try {
+                File file = cloudinary.uploadImage(subjectDto.getAvatar());
+                subject.setAvatar(file);
 
-        } catch (Exception e){
-            System.err.println("Error : " + e.getMessage());
-            return ResponseEntity.badRequest().body(new MessageResponse("Failed to upload avatar"));
+            } catch (Exception e){
+                System.err.println("Error : " + e.getMessage());
+                return ResponseEntity.badRequest().body(new MessageResponse("Failed to upload avatar"));
+            }
         }
 
         subjectRepository.save(subject);
