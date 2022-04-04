@@ -270,8 +270,8 @@ public class UserServiceImpl implements UserService{
         userOpt.get().setUsername(userDto.getUsername());
         userOpt.get().setEmail(userDto.getEmail());
 
-        if (userDto.getActivated() != null)
-            userOpt.get().setIsActivated(userDto.getActivated());
+        if (userDto.getIsActivated() != null)
+            userOpt.get().setIsActivated(userDto.getIsActivated());
 
         //Validates subjects
         Set<Subject> validSubjects = new HashSet<>();

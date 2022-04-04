@@ -1,6 +1,7 @@
 package com.secondcommit.forum.dto;
 
 import com.secondcommit.forum.entities.Answer;
+import lombok.Data;
 
 import java.util.Date;
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.Set;
 /**
  * Dto with the post data for responses
  */
+@Data
 public class PostDtoResponse {
 
     private Long id;
@@ -45,107 +47,4 @@ public class PostDtoResponse {
         this.usersWhoDisike = usersWhoDisike;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
-
-    public Integer getTotalLikes() {
-        return totalLikes;
-    }
-
-    public void setTotalLikes(Integer totalLikes) {
-        this.totalLikes = totalLikes;
-    }
-
-    public Integer getTotalDislikes() {
-        return totalDislikes;
-    }
-
-    public void setTotalDislikes(Integer totalDislikes) {
-        this.totalDislikes = totalDislikes;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public Boolean getFixed() {
-        return fixed;
-    }
-
-    public void setFixed(Boolean fixed) {
-        this.fixed = fixed;
-    }
-
-    public Set<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(Set<Answer> answers) {
-        this.answers = answers;
-    }
-
-    public Integer getTotalAnswers() {
-        return totalAnswers;
-    }
-
-    public void setTotalAnswers(Integer totalAnswers) {
-        this.totalAnswers = totalAnswers;
-    }
-
-    public Set<String> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<String> files) {
-        this.files = files;
-    }
-
-    public Set<BasicUserDto> getUsersWhoLike() {
-        return usersWhoLike;
-    }
-
-    public void setUsersWhoLike(Set<BasicUserDto> usersWhoLike) {
-        this.usersWhoLike = usersWhoLike;
-    }
-
-    public Set<BasicUserDto> getUsersWhoDisike() {
-        return usersWhoDisike;
-    }
-
-    public void setUsersWhoDisike(Set<BasicUserDto> usersWhoDisike) {
-        this.usersWhoDisike = usersWhoDisike;
-    }
 }

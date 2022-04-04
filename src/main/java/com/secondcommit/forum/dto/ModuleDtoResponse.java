@@ -1,5 +1,11 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
+
+/**
+ * Dto with the response sent for any CRUD methods involving Module
+ */
+@Data
 public class ModuleDtoResponse {
 
     private Long id;
@@ -17,35 +23,4 @@ public class ModuleDtoResponse {
         this.totalQuestions = totalQuestions;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getTotalQuestions() {
-        return totalQuestions;
-    }
-
-    public void setTotalQuestions(Integer totalQuestions) {
-        this.totalQuestions = totalQuestions;
-    }
 }

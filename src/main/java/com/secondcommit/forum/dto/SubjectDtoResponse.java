@@ -1,10 +1,13 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
+
 import java.util.Set;
 
 /**
  * Dto with the subject data send in responses
  */
+@Data
 public class SubjectDtoResponse {
 
     private Long id;
@@ -27,35 +30,4 @@ public class SubjectDtoResponse {
         this.modules = modules;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public Set<ModuleDtoResponse> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<ModuleDtoResponse> modules) {
-        this.modules = modules;
-    }
 }

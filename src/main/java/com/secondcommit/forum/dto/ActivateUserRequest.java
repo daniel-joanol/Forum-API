@@ -1,8 +1,11 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
+
 /**
  * DTO with the required data for the activation of a new user
  */
+@Data
 public class ActivateUserRequest {
 
     private String username;
@@ -13,22 +16,6 @@ public class ActivateUserRequest {
 
     public ActivateUserRequest(String username, Integer activationCode) {
         this.username = username;
-        this.activationCode = activationCode;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public Integer getActivationCode() {
-        return activationCode;
-    }
-
-    public void setActivationCode(Integer activationCode) {
         this.activationCode = activationCode;
     }
 }

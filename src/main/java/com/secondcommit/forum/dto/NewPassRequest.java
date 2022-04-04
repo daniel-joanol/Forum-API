@@ -1,8 +1,11 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
+
 /**
  * DTO with the required data for setting a new password for the user
  */
+@Data
 public class NewPassRequest {
 
     private String username;
@@ -18,27 +21,4 @@ public class NewPassRequest {
         this.validationCode = validationCode;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getNewPass() {
-        return newPass;
-    }
-
-    public void setNewPass(String newPass) {
-        this.newPass = newPass;
-    }
-
-    public Integer getValidationCode() {
-        return validationCode;
-    }
-
-    public void setValidationCode(Integer validationCode) {
-        this.validationCode = validationCode;
-    }
 }

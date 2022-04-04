@@ -1,8 +1,11 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
+
 /**
  * DTO with the required data for asking for a new password
  */
+@Data
 public class ForgotPassRequest {
 
     private String email;
@@ -11,14 +14,6 @@ public class ForgotPassRequest {
     }
 
     public ForgotPassRequest(String email) {
-        this.email = email;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
     }
 }

@@ -1,10 +1,12 @@
 package com.secondcommit.forum.dto;
 
+import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Dto with the data required to create and update posts
  */
+@Data
 public class PostDto {
 
     private String title;
@@ -19,27 +21,4 @@ public class PostDto {
         this.content = content;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public MultipartFile[] getFiles() {
-        return files;
-    }
-
-    public void setFiles(MultipartFile[] files) {
-        this.files = files;
-    }
 }
