@@ -5,6 +5,7 @@ import com.secondcommit.forum.dto.UserResponseDto;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,6 +32,9 @@ public class User {
 
     @Column(name = "is_activated")
     private Boolean isActivated = false;
+
+    @Column(name = "time_stamp")
+    private Timestamp timeStamp;
 
     @Column(name = "validation_code")
     private Integer validationCode;

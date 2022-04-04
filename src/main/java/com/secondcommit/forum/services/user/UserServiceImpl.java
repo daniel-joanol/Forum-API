@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -47,6 +48,8 @@ public class UserServiceImpl implements UserService{
 
     @Autowired
     private final CloudinaryServiceImpl cloudinary;
+
+    private final Long EXPIRATION = 30000L; // ms equivalent to 5 minutes
 
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                            PasswordEncoder encoder, SparkPostServiceImpl sparkPost,
@@ -138,6 +141,14 @@ public class UserServiceImpl implements UserService{
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
 
         if (user.getActivationCode() != null && activationCode.intValue() == user.getActivationCode().intValue()) {
+
+            //Checks if more than 5 minutes has passed since the activation code was set up
+            Long now = new Timestamp(System.currentTimeMillis()).getTime();
+
+                if ( now - user.getTimeStamp().getTime() < EXPIRATION)
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("The activation code has expired"));
+
             user.setIsActivated(true);
             userRepository.save(user);
         } else {
