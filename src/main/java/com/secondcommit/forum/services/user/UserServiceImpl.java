@@ -138,7 +138,7 @@ public class UserServiceImpl implements UserService{
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
 
         if (user.getActivationCode() != null && activationCode.intValue() == user.getActivationCode().intValue()) {
-            user.setActivated(true);
+            user.setIsActivated(true);
             userRepository.save(user);
         } else {
             return ResponseEntity.badRequest()
@@ -271,7 +271,7 @@ public class UserServiceImpl implements UserService{
         userOpt.get().setEmail(userDto.getEmail());
 
         if (userDto.getActivated() != null)
-            userOpt.get().setActivated(userDto.getActivated());
+            userOpt.get().setIsActivated(userDto.getActivated());
 
         //Validates subjects
         Set<Subject> validSubjects = new HashSet<>();

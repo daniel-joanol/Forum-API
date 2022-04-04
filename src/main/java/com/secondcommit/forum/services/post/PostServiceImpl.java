@@ -264,7 +264,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().getLikes());
+        return ResponseEntity.ok(postOpt.get().getTotalLikes());
     }
 
     /**
@@ -305,7 +305,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().getDislikes());
+        return ResponseEntity.ok(postOpt.get().getTotalDislikes());
     }
 
     /**

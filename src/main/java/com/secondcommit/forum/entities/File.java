@@ -1,10 +1,13 @@
 package com.secondcommit.forum.entities;
 
+import lombok.Data;
+
 import javax.persistence.*;
 
 /**
  * Entity that manages the files in the database
  */
+@Data
 @Entity
 @Table(name = "files")
 public class File {
@@ -24,30 +27,6 @@ public class File {
 
     public File(String url, String cloudinaryId) {
         this.url = url;
-        this.cloudinaryId = cloudinaryId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getCloudinaryId() {
-        return cloudinaryId;
-    }
-
-    public void setCloudinaryId(String cloudinaryId) {
         this.cloudinaryId = cloudinaryId;
     }
 }

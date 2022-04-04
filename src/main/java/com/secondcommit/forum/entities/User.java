@@ -2,6 +2,7 @@ package com.secondcommit.forum.entities;
 
 import com.secondcommit.forum.dto.BasicSubjectDtoResponse;
 import com.secondcommit.forum.dto.UserResponseDto;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Set;
 /**
  * Entity that manages the users in the database
  */
+@Data
 @Entity
 @Table(name = "users")
 public class User {
@@ -117,62 +119,12 @@ public class User {
         this.hasAccess = hasAccess;
     }
 
-    //Getters and Setters (also remove and add for the Sets)
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
     public void removeRole(Role role) {
         roles.remove(role);
     }
 
     public void addRole(Role role){
         roles.add(role);
-    }
-
-    public Set<Subject> getFollowsSubject() {
-        return followsSubject;
-    }
-
-    public void setFollowsSubject(Set<Subject> followsSubject) {
-        this.followsSubject = followsSubject;
     }
 
     public void removeFollowsSubject(Subject subject){
@@ -183,28 +135,12 @@ public class User {
         followsSubject.add(subject);
     }
 
-    public Set<Subject> getHasAccess() {
-        return hasAccess;
-    }
-
-    public void setHasAccess(Set<Subject> hasAccess) {
-        this.hasAccess = hasAccess;
-    }
-
     public void removeAccess(Subject subject){
         hasAccess.remove(subject);
     }
 
     public void addAccess(Subject subject) {
         hasAccess.add(subject);
-    }
-
-    public Set<Post> getFollowsPost() {
-        return followsPost;
-    }
-
-    public void setFollowsPost(Set<Post> followsPost) {
-        this.followsPost = followsPost;
     }
 
     public void removeFollowsPost(Post post) {
@@ -214,40 +150,6 @@ public class User {
     public void addFollowsPost(Post post){
         followsPost.add(post);
     }
-
-    public Boolean isActivated() {
-        return isActivated;
-    }
-
-    public void setActivated(Boolean activated) {
-        isActivated = activated;
-    }
-
-    public Integer getValidationCode() {
-        return validationCode;
-    }
-
-    public void setValidationCode(Integer validationCode) {
-        this.validationCode = validationCode;
-    }
-
-    public Integer getActivationCode() {
-        return activationCode;
-    }
-
-    public void setActivationCode(Integer activationCode) {
-        this.activationCode = activationCode;
-    }
-
-    public File getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(File avatar) {
-        this.avatar = avatar;
-    }
-
-    //Other methods
 
     public UserResponseDto getDtoFromUser(String message){
 

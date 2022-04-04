@@ -2,6 +2,7 @@ package com.secondcommit.forum.entities;
 
 import com.secondcommit.forum.dto.ModuleDtoResponse;
 import com.secondcommit.forum.dto.SubjectDtoResponse;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -10,6 +11,7 @@ import java.util.Set;
 /**
  * Entity that manages the subjects in the database
  */
+@Data
 @Entity
 @Table(name = "subjects")
 public class Subject {
@@ -51,46 +53,6 @@ public class Subject {
 
     public Subject(String name, Set<Module> modules) {
         this.name = name;
-        this.modules = modules;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getTotalModules() {
-        return totalModules;
-    }
-
-    public void setTotalModules(Integer totalModules) {
-        this.totalModules = totalModules;
-    }
-
-    public File getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(File avatar) {
-        this.avatar = avatar;
-    }
-
-    public Set<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<Module> modules) {
         this.modules = modules;
     }
 

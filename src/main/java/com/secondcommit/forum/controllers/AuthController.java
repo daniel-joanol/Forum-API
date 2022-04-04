@@ -61,6 +61,8 @@ public class AuthController {
     @ApiOperation("Login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest){
 
+        //TODO: wrong usernames are being responded with 500 because of NoSuchElementeException
+
         Optional<User> userOpt = userRepository.findByUsername(loginRequest.getUsername());
 
         //If the user doesn't exist, returns bad request
@@ -69,7 +71,7 @@ public class AuthController {
                     .body(new MessageResponse("The user " + userOpt.get().getUsername() + " doesn't exist"));
 
         //If the user isn't activated yet, the login won't work
-        if (!userOpt.get().isActivated())
+        if (!userOpt.get().getIsActivated())
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("The user " + userOpt.get().getUsername() + " isn't validated yet"));
 

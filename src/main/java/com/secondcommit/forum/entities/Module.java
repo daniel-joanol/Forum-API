@@ -1,6 +1,7 @@
 package com.secondcommit.forum.entities;
 
 import com.secondcommit.forum.dto.ModuleDtoResponse;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -8,6 +9,7 @@ import java.util.Set;
 /**
  * Entity that manages the subjects in the database
  */
+@Data
 @Entity
 @Table(name = "modules")
 public class Module {
@@ -47,46 +49,6 @@ public class Module {
         this.description = description;
         this.posts = posts;
         totalQuestions = posts.size();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Integer getTotalQuestions() {
-        return totalQuestions;
-    }
-
-    public void setTotalQuestions(Integer totalQuestions) {
-        this.totalQuestions = totalQuestions;
-    }
-
-    public Set<Post> getPosts() {
-        return posts;
-    }
-
-    public void setPosts(Set<Post> posts) {
-        this.posts = posts;
     }
 
     public void addPost(Post post){

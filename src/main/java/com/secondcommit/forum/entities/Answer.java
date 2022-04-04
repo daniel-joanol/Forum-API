@@ -1,5 +1,7 @@
 package com.secondcommit.forum.entities;
 
+import lombok.Data;
+
 import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
@@ -8,6 +10,7 @@ import java.util.Set;
 /**
  * Entity that manages the answer in the database
  */
+@Data
 @Entity
 @Table(name = "answers")
 public class Answer {
@@ -76,86 +79,12 @@ public class Answer {
         date = new Date();
     }
 
-    //Getters and Setters (also remove and add for the Sets)
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
-    public Set<File> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<File> files) {
-        this.files = files;
-    }
-
     public void addFile(File file){
         files.add(file);
     }
 
     public void removeFile(File file){
         files.remove(file);
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public boolean isFixed() {
-        return fixed;
-    }
-
-    public void setFixed(boolean fixed) {
-        this.fixed = fixed;
-    }
-
-    public int getTotalLikes() {
-        return totalLikes;
-    }
-
-    public void setTotalLikes(int totalLikes) {
-        this.totalLikes = totalLikes;
-    }
-
-    public int getTotalDislikes() {
-        return totalDislikes;
-    }
-
-    public void setTotalDislikes(int totalDislikes) {
-        this.totalDislikes = totalDislikes;
-    }
-
-    public Set<User> getUsersWhoLike() {
-        return usersWhoLike;
-    }
-
-    public void setUsersWhoLike(Set<User> usersWhoLike) {
-        this.usersWhoLike = usersWhoLike;
     }
 
     public void addUsersWhoLike(User user){
@@ -166,14 +95,6 @@ public class Answer {
     public void removeUsersWhoLike(User user){
         usersWhoLike.remove(user);
         setTotalLikes(usersWhoLike.size());
-    }
-
-    public Set<User> getUsersWhoDislike() {
-        return usersWhoDislike;
-    }
-
-    public void setUsersWhoDislike(Set<User> usersWhoDislike) {
-        this.usersWhoDislike = usersWhoDislike;
     }
 
     public void addUsersWhoDislike(User user){
