@@ -123,38 +123,6 @@ public class User {
         this.hasAccess = hasAccess;
     }
 
-    public void removeRole(Role role) {
-        roles.remove(role);
-    }
-
-    public void addRole(Role role){
-        roles.add(role);
-    }
-
-    public void removeFollowsSubject(Subject subject){
-        followsSubject.remove(subject);
-    }
-
-    public void addFollowsSubject(Subject subject) {
-        followsSubject.add(subject);
-    }
-
-    public void removeAccess(Subject subject){
-        hasAccess.remove(subject);
-    }
-
-    public void addAccess(Subject subject) {
-        hasAccess.add(subject);
-    }
-
-    public void removeFollowsPost(Post post) {
-        followsPost.remove(post);
-    }
-
-    public void addFollowsPost(Post post){
-        followsPost.add(post);
-    }
-
     public UserResponseDto getDtoFromUser(String message){
 
         String urlAvatar = "";

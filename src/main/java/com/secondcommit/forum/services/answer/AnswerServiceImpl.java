@@ -120,7 +120,7 @@ public class AnswerServiceImpl implements AnswerService{
 
                 try {
                     Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
-                    if (destroyed) answerOpt.get().removeFile(file);
+                    if (destroyed) answerOpt.get().getFiles().remove(file);
 
                 } catch (IOException e){
                     System.err.println("Error: " + e.getMessage());
@@ -134,7 +134,7 @@ public class AnswerServiceImpl implements AnswerService{
                 //Saves image in Cloudinary
                 try {
                     File photo = cloudinary.uploadImage(image);
-                    answerOpt.get().addFile(photo);
+                    answerOpt.get().getFiles().add(photo);
                 } catch (Exception e){
                     System.err.println("Error: " + e.getMessage());
                     return ResponseEntity.badRequest()
@@ -183,7 +183,7 @@ public class AnswerServiceImpl implements AnswerService{
             for (File file : answerOpt.get().getFiles()){
                 try {
                     Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
-                    if (destroyed) answerOpt.get().removeFile(file);
+                    if (destroyed) answerOpt.get().getFiles().remove(file);
 
                 } catch (IOException e){
                     System.err.println("Error: " + e.getMessage());

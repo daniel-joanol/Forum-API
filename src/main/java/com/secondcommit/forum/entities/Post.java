@@ -119,14 +119,6 @@ public class Post {
         setTotalDislikes(usersWhoDislike.size());
     }
 
-    public void addFile(File file){
-        files.add(file);
-    }
-
-    public void removeFile(File file){
-        files.remove(file);
-    }
-
     public void addAnswer(Answer answer){
         answers.add(answer);
         setTotalAnswers(answers.size());

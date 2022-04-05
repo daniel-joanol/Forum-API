@@ -379,7 +379,7 @@ public class UserServiceImpl implements UserService{
         if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().addAccess(subjectOpt.get());
+        userOpt.get().getHasAccess().add(subjectOpt.get());
         userRepository.save(userOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser("Added access to the subject " + subjectDto.getName()));
@@ -403,7 +403,7 @@ public class UserServiceImpl implements UserService{
         if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().removeAccess(subjectOpt.get());
+        userOpt.get().getHasAccess().remove(subjectOpt.get());
         userRepository.save(userOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser("Removed access from subject " + subjectDto.getName()));

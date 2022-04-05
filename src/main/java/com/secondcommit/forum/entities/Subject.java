@@ -56,16 +56,6 @@ public class Subject {
         this.modules = modules;
     }
 
-    public void addModule(Module module){
-        modules.add(module);
-        totalModules = modules.size();
-    }
-
-    public void removeModule(Module module){
-        modules.remove(module);
-        totalModules = modules.size();
-    }
-
     public SubjectDtoResponse getDtoFromSubject(){
         Set<ModuleDtoResponse> modulesDto = new HashSet<>();
         String backupAvatar = "";

@@ -72,7 +72,7 @@ public class PostServiceImpl implements PostService{
                 //Saves image in Cloudinary
                 try {
                     File photo = cloudinary.uploadImage(image);
-                    postOpt.get().addFile(photo);
+                    postOpt.get().getFiles().add(photo);
                 } catch (Exception e){
                     System.err.println("Error: " + e.getMessage());
                     return ResponseEntity.badRequest()
@@ -143,7 +143,7 @@ public class PostServiceImpl implements PostService{
 
                 try {
                     Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
-                    if (destroyed) postOpt.get().removeFile(file);
+                    if (destroyed) postOpt.get().getFiles().remove(file);
 
                 } catch (IOException e) {
                     System.err.println("Error: " + e.getMessage());
@@ -155,7 +155,7 @@ public class PostServiceImpl implements PostService{
                 //Saves image in Cloudinary
                 try {
                     File photo = cloudinary.uploadImage(image);
-                    postOpt.get().addFile(photo);
+                    postOpt.get().getFiles().add(photo);
                 } catch (Exception e){
                     System.err.println("Error: " + e.getMessage());
                     return ResponseEntity.badRequest()
@@ -212,7 +212,7 @@ public class PostServiceImpl implements PostService{
 
                 try {
                     Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
-                    if (destroyed) postOpt.get().removeFile(file);
+                    if (destroyed) postOpt.get().getFiles().remove(file);
 
                 } catch (IOException e) {
                     System.err.println("Error: " + e.getMessage());

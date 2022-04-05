@@ -79,14 +79,6 @@ public class Answer {
         date = new Date();
     }
 
-    public void addFile(File file){
-        files.add(file);
-    }
-
-    public void removeFile(File file){
-        files.remove(file);
-    }
-
     public void addUsersWhoLike(User user){
         usersWhoLike.add(user);
         setTotalLikes(usersWhoLike.size());
