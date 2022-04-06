@@ -5,9 +5,7 @@ import com.secondcommit.forum.dto.PostDtoResponse;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Entity that manages the posts in the database
@@ -39,6 +37,9 @@ public class Post {
     private Date date = new Date();
 
     private boolean fixed = false;
+
+    @ManyToMany(mappedBy ="followsPost")
+    private List<User> usersFollowing = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USERS_WHOLIKE_POST",
@@ -79,24 +80,29 @@ public class Post {
     @Column
     private int totalAnswers = 0;
 
+    @ManyToOne
+    private Module module;
+
     //Constructors
 
     public Post() {
     }
 
-    public Post(User author, String title, String content) {
+    public Post(User author, String title, String content, Module module) {
         this.author = author;
         this.title = title;
         this.content = content;
         date = new Date();
+        this.module = module;
     }
 
-    public Post(User author, String title, String content, Set<File> files) {
+    public Post(User author, String title, String content, Set<File> files, Module module) {
         this.author = author;
         this.title = title;
         this.content = content;
         this.files = files;
         date = new Date();
+        this.module = module;
     }
 
     public void addUsersWhoLike(User user) {

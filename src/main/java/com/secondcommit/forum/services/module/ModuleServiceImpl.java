@@ -48,7 +48,7 @@ public class ModuleServiceImpl implements ModuleService{
                     .body(new MessageResponse("The module " + moduleDto.getName() + " is already registered"));
 
         //Creates the new module
-        Module module = new Module(moduleDto.getName(), moduleDto.getDescription());
+        Module module = new Module(moduleDto.getName(), moduleDto.getDescription(), subjectOpt.get());
         subjectOpt.get().getModules().add(module);
         moduleRepository.save(module);
         subjectRepository.save(subjectOpt.get());

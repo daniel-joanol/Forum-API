@@ -69,7 +69,7 @@ public class User {
                     @JoinColumn(name = "SUBJECT_ID") })
     private Set<Subject> followsSubject = new HashSet<>();
 
-    @ManyToMany(fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_HASACCESS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")

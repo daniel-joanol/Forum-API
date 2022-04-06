@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -159,6 +160,23 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     /**
+     * Method to get all subjects. Only admins allowed
+     * @return ResponseEntity (ok: set(subjectDtoResponse), no content)
+     */
+    @Override
+    public ResponseEntity<?> getAllSubjects() {
+        List<Subject> subjects = subjectRepository.findAll();
+
+        if (subjects.size() == 0) return ResponseEntity.noContent().build();
+
+        Set<SubjectDtoResponse> response = new HashSet<>();
+        for (Subject subject : subjects)
+            response.add(subject.getDtoFromSubject());
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
      * Method that updates the subject
      * @param id
      * @param subjectDto
@@ -214,6 +232,22 @@ public class SubjectServiceImpl implements SubjectService {
         //Gets the subject
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
 
+        //Deletes access to the subject from users
+        List<User> usersWithAccess = subjectOpt.get().getUsersWithAccess();
+
+        for (User user : usersWithAccess) {
+            user.getHasAccess().remove(subjectOpt.get());
+            userRepository.save(user);
+        }
+
+        //Deletes the subject from the list of users following
+        List<User> usersFollowing = subjectOpt.get().getUsersFollowing();
+
+        for (User user : usersFollowing){
+            user.getFollowsSubject().remove(subjectOpt.get());
+            userRepository.save(user);
+        }
+
         //Checks if the subject has an avatar. If yes, destroys it
         if (subjectOpt.get().getAvatar() != null) {
 
@@ -226,8 +260,9 @@ public class SubjectServiceImpl implements SubjectService {
             }
         }
 
-            subjectRepository.delete(subjectOpt.get());
+        subjectRepository.delete(subjectOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Subject " + id + " deleted with success"));
     }
+
 }

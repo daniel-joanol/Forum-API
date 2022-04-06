@@ -5,7 +5,9 @@ import com.secondcommit.forum.dto.SubjectDtoResponse;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -42,7 +44,13 @@ public class Subject {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "MODULE_ID") })
-    private Set<Module> modules;
+    private List<Module> modules;
+
+    @ManyToMany(mappedBy = "hasAccess")
+    private List<User> usersWithAccess = new ArrayList<>();
+
+    @ManyToMany(mappedBy = "followsSubject")
+    private List<User> usersFollowing = new ArrayList<>();
 
     public Subject() {
     }
@@ -51,7 +59,7 @@ public class Subject {
         this.name = name;
     }
 
-    public Subject(String name, Set<Module> modules) {
+    public Subject(String name, List<Module> modules) {
         this.name = name;
         this.modules = modules;
     }

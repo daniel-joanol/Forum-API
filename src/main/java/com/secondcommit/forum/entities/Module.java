@@ -4,7 +4,7 @@ import com.secondcommit.forum.dto.ModuleDtoResponse;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Entity that manages the subjects in the database
@@ -34,21 +34,26 @@ public class Module {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "POST_ID") })
-    private Set<Post> posts;
+    private List<Post> posts;
+
+    @ManyToOne
+    private Subject subject;
 
     public Module() {
     }
 
-    public Module(String name, String description) {
+    public Module(String name, String description, Subject subject) {
         this.name = name;
         this.description = description;
+        this.subject = subject;
     }
 
-    public Module(String name, String description, Set<Post> posts) {
+    public Module(String name, String description, List<Post> posts, Subject subject) {
         this.name = name;
         this.description = description;
         this.posts = posts;
         totalQuestions = posts.size();
+        this.subject = subject;
     }
 
     public void addPost(Post post){

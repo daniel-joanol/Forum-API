@@ -64,13 +64,14 @@ public class PostController {
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
     @ApiOperation("Gets post. Authentication required (USER)")
-    public ResponseEntity<?> getPost(@PathVariable Long id){
+    public ResponseEntity<?> getPost(@PathVariable Long id,
+                                     @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates post
         if (!postRepository.existsById(id))
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
-        return postService.getPost(id);
+        return postService.getPost(id, username);
     }
 
     /**
@@ -173,5 +174,43 @@ public class PostController {
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return postService.fix(id);
+    }
+
+    /**
+     * Method to make user follow post
+     * @param id
+     * @param username (Gets from the jwt token)
+     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/follow/{id")
+    @ApiOperation("User follows post. Authentication required (USER")
+    public ResponseEntity<?> follow(@PathVariable Long id,
+                                    @CurrentSecurityContext(expression="authentication?.name") String username){
+
+        //Validates id
+        if (!postRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        return postService.follow(id, username);
+    }
+
+    /**
+     * Method to make user unfollow post
+     * @param id
+     * @param username (Gets from the jwt token)
+     * @return ResponseEntity (ok: post, bad request: messageResponse)
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/unfollow/{id")
+    @ApiOperation("User unfollows post. Authentication required (USER")
+    public ResponseEntity<?> unfollow(@PathVariable Long id,
+                                    @CurrentSecurityContext(expression="authentication?.name") String username){
+
+        //Validates id
+        if (!postRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        return postService.unfollow(id, username);
     }
 }

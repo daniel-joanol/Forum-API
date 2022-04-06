@@ -380,7 +380,9 @@ public class UserServiceImpl implements UserService{
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
         userOpt.get().getHasAccess().add(subjectOpt.get());
+        subjectOpt.get().getUsersWithAccess().add(userOpt.get());
         userRepository.save(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser("Added access to the subject " + subjectDto.getName()));
     }
@@ -405,8 +407,65 @@ public class UserServiceImpl implements UserService{
 
         userOpt.get().getHasAccess().remove(subjectOpt.get());
         userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersWithAccess().remove(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
 
         return ResponseEntity.ok(userOpt.get().getDtoFromUser("Removed access from subject " + subjectDto.getName()));
     }
 
+    /**
+     * Method to make the user follow a subject
+     * @param id
+     * @param subjectDto
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> followSubject(Long id, SubjectDto subjectDto) {
+
+        //Gets User
+        Optional<User> userOpt = userRepository.findById(id);
+
+        //Validates Subject
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        //Checks if the user has access to the subject
+        if (!subjectOpt.get().getUsersWithAccess().contains(userOpt.get()))
+            return ResponseEntity.badRequest().body(new MessageResponse("The user doesn't have access to the subject"));
+
+        userOpt.get().getFollowsSubject().add(subjectOpt.get());
+        userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersFollowing().add(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("The user " + id + "now follows the subject " + subjectDto.getName()));
+    }
+
+    /**
+     * Method to make the user unfollow a subject
+     * @param id
+     * @param subjectDto
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> unfollowSubject(Long id, SubjectDto subjectDto) {
+
+        //Gets User
+        Optional<User> userOpt = userRepository.findById(id);
+
+        //Validates Subject
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        userOpt.get().getFollowsSubject().remove(subjectOpt.get());
+        userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersFollowing().remove(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("The user " + id + "unfollowed the subject " + subjectDto.getName() + " anymore"));
+    }
 }

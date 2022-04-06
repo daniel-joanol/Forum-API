@@ -21,4 +21,6 @@ public interface UserService {
     ResponseEntity<?> deleteUser(Long id, String username);
     ResponseEntity<?> addAccess(Long id, SubjectDto subjectDto);
     ResponseEntity<?> removeAccess(Long id, SubjectDto subjectDto);
+    ResponseEntity<?> followSubject(Long id, SubjectDto subjectDto);
+    ResponseEntity<?> unfollowSubject(Long id, SubjectDto subjectDto);
 }

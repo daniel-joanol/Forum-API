@@ -38,8 +38,7 @@ public class AnswerController {
     @PreAuthorize("hasAuthority('USER')")
     @PostMapping("/{postId}")
     @ApiOperation("Creates new answer. Authentication required (USER)")
-    public ResponseEntity<?> newAnswer(@RequestParam Long postId,
-                                     @RequestBody AnswerDto answerDto,
+    public ResponseEntity<?> newAnswer(@PathVariable Long postId, AnswerDto answerDto,
                                      @CurrentSecurityContext(expression="authentication?.name") String username) {
 
         //Validates id

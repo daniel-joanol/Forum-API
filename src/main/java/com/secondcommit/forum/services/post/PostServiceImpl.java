@@ -1,13 +1,10 @@
 package com.secondcommit.forum.services.post;
 
+import com.secondcommit.forum.entities.*;
 import com.secondcommit.forum.entities.Module;
 import com.secondcommit.forum.repositories.ModuleRepository;
 import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
 import com.secondcommit.forum.dto.PostDto;
-import com.secondcommit.forum.entities.File;
-import com.secondcommit.forum.entities.Post;
-import com.secondcommit.forum.entities.Role;
-import com.secondcommit.forum.entities.User;
 import com.secondcommit.forum.repositories.PostRepository;
 import com.secondcommit.forum.repositories.UserRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
@@ -45,7 +42,7 @@ public class PostServiceImpl implements PostService{
     }
 
     /**
-     * Method to add post.
+     * Method to add post. Checks if the user has access to the subject the contains this post
      * @param postDto (title and content)
      * @param author (gets the username from the jwt token)
      * @return ResponseEntity (ok: post, bad request: messageResponse)
@@ -66,6 +63,14 @@ public class PostServiceImpl implements PostService{
         //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
+        //Gets subject
+        Subject subject = moduleOpt.get().getSubject();
+
+        //Checks if the user has access to the subject
+        if(!userOpt.get().getHasAccess().contains(subject)){
+            return ResponseEntity.badRequest().body(new MessageResponse("The user doesn't have access to the subject"));
+        }
+
         //Upload images to Cloudinary
         if (postDto.getFiles() != null){
             for (MultipartFile image : postDto.getFiles()){
@@ -82,7 +87,7 @@ public class PostServiceImpl implements PostService{
         }
 
         //Creates the new post
-        Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent());
+        Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent(), moduleOpt.get());
         moduleOpt.get().addPost(post);
         postRepository.save(post);
         moduleRepository.save(moduleOpt.get());
@@ -91,15 +96,28 @@ public class PostServiceImpl implements PostService{
     }
 
     /**
-     * Method to get the post
+     * Method to get the post. Checks if the user has access to the subject the contains this post
      * @param id
      * @return ResponseEntity (ok: post, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> getPost(Long id) {
+    public ResponseEntity<?> getPost(Long id, String username) {
 
         //Gets post
         Optional<Post> postOpt = postRepository.findById(id);
+
+        //Gets module
+        Module module = postOpt.get().getModule();
+
+        //Gets subject
+        Subject subject = module.getSubject();
+
+        //Checks if the user has access to the subject
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        if(!userOpt.get().getHasAccess().contains(subject)){
+            return ResponseEntity.badRequest().body(new MessageResponse("The user doesn't have access to the post"));
+        }
 
         return ResponseEntity.ok(postOpt.get().getDtoFromPost());
     }
@@ -332,5 +350,66 @@ public class PostServiceImpl implements PostService{
         postRepository.save(postOpt.get());
 
         return ResponseEntity.ok(postOpt.get().isFixed());
+    }
+
+    /**
+     * Method to make user follow a post. Checks if the user has access to the subject this post belongs to
+     * @param id
+     * @param username (gets from the jwt token)
+     * @return ResponseEntity(messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> follow(Long id, String username) {
+
+        //Gets user
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        //Gets post
+        Optional<Post> postOpt = postRepository.findById(id);
+
+        if (postOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid id"));
+
+        //Checks if the user has access to the subject
+        //Get module than gets subject
+        Module module = postOpt.get().getModule();
+        Subject subject = module.getSubject();
+
+        if (!userOpt.get().getHasAccess().contains(subject))
+            return ResponseEntity.badRequest().body(new MessageResponse("The user doesn't have access to the subject"));
+
+        userOpt.get().getFollowsPost().add(postOpt.get());
+        userRepository.save(userOpt.get());
+        postOpt.get().getUsersFollowing().add(userOpt.get());
+        postRepository.save(postOpt.get());
+
+        return ResponseEntity.ok(new MessageResponse("The user " + username + " now follows the post " + id));
+    }
+
+    /**
+     * Method to make user unfollow a post
+     * @param id
+     * @param username (gets from the jwt token)
+     * @return ResponseEntity(messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> unfollow(Long id, String username) {
+
+        //Gets user
+        Optional<User> userOpt = userRepository.findByUsername(username);
+
+        //Gets post
+        Optional<Post> postOpt = postRepository.findById(id);
+
+        if (postOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid id"));
+
+        userOpt.get().getFollowsPost().remove(postOpt.get());
+        userRepository.save(userOpt.get());
+        postOpt.get().getUsersFollowing().remove(userOpt.get());
+        postRepository.save(postOpt.get());
+
+        return ResponseEntity.ok(new MessageResponse("The user " + username + " has unfollowed the post " + id));
+
     }
 }

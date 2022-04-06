@@ -60,7 +60,7 @@ public class SubjectController {
 
     /**
      * Method to get all subjects that the user has access to
-     * @param username
+     * @param username (gets from the jwt token)
      * @return ResponseEntity (ok: Set(SubjectDtoResponse), no content)
      */
     @PreAuthorize("hasAuthority('USER')")
@@ -68,6 +68,17 @@ public class SubjectController {
     @ApiOperation("Gets all subjects which the user has access to. Authentication required (USER)")
     public ResponseEntity<?> getSubjectsAllowed(@CurrentSecurityContext(expression="authentication?.name") String username){
         return subjectService.getSubjectsAllowed(username);
+    }
+
+    /**
+     * Method to get all subjects
+     * @return ResponseEntity (ok: Set(SubjectDtoResponse), no content)
+     */
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @GetMapping("/get-all")
+    @ApiOperation("Gets all subjects. Authentication required (ADMIN)")
+    public ResponseEntity<?> getAllSubjects(){
+        return subjectService.getAllSubjects();
     }
 
     /**

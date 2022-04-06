@@ -50,7 +50,7 @@ public class UserController {
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/all")
-    @ApiOperation("Gets all users data. Authentication required (USER)")
+    @ApiOperation("Gets all users data. Authentication required (ADMIN)")
     public ResponseEntity<?> getAllUsers(){
         return userService.getAllUsers();
     }
@@ -130,5 +130,41 @@ public class UserController {
                     .body(new MessageResponse("The user id " + id + " doesn't exist!"));
 
         return userService.removeAccess(id, subjectDto);
+    }
+
+    /**
+     * Method to make user follow a subject
+     * @param id
+     * @param subjectDto
+     * @return
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/follow_subject/{id}")
+    @ApiOperation("Follow subject. Authentication required (USER)")
+    public ResponseEntity<?> followSubject(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
+        //Validates the id
+        if (!userRepository.existsById(id))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        return userService.followSubject(id, subjectDto);
+    }
+
+    /**
+     * Method to make user follow a subject
+     * @param id
+     * @param subjectDto
+     * @return
+     */
+    @PreAuthorize("hasAuthority('USER')")
+    @PutMapping("/unfollow_subject/{id}")
+    @ApiOperation("Unfollow subject. Authentication required (USER)")
+    public ResponseEntity<?> unfollowSubject(@PathVariable Long id, @RequestBody SubjectDto subjectDto){
+        //Validates the id
+        if (!userRepository.existsById(id))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+
+        return userService.unfollowSubject(id, subjectDto);
     }
 }

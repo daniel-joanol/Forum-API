@@ -61,15 +61,17 @@ public class AnswerServiceImpl implements AnswerService{
         //Upload images to Cloudinary
         Set<File> files = new HashSet<>();
 
-        for (MultipartFile image : answerDto.getFiles()){
-            //Saves image in Cloudinary
-            try {
-                File photo = cloudinary.uploadImage(image);
-                files.add(photo);
-            } catch (Exception e){
-                System.err.println("Error: " + e.getMessage());
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("Upload failed"));
+        if (answerDto.getFiles().length > 0){
+            for (MultipartFile image : answerDto.getFiles()){
+                //Saves image in Cloudinary
+                try {
+                    File photo = cloudinary.uploadImage(image);
+                    files.add(photo);
+                } catch (Exception e){
+                    System.err.println("Error: " + e.getMessage());
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("Upload failed"));
+                }
             }
         }
 
