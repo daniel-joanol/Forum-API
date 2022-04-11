@@ -62,40 +62,26 @@ public class Answer {
                     @JoinColumn(name = "USER_ID") })
     private Set<User> usersWhoDislike = new HashSet<>();
 
+    @ManyToOne()
+    private Post post;
+
     //Constructors
     public Answer() {
     }
 
-    public Answer(String content, User author) {
+    public Answer(String content, User author, Post post) {
         this.content = content;
         this.author = author;
         date = new Date();
+        this.post = post;
     }
 
-    public Answer(String content, User author, Set<File> files) {
+    public Answer(String content, User author, Set<File> files, Post post) {
         this.content = content;
         this.author = author;
         this.files = files;
         date = new Date();
+        this.post = post;
     }
 
-    public void addUsersWhoLike(User user){
-        usersWhoLike.add(user);
-        setTotalLikes(usersWhoLike.size());
-    }
-
-    public void removeUsersWhoLike(User user){
-        usersWhoLike.remove(user);
-        setTotalLikes(usersWhoLike.size());
-    }
-
-    public void addUsersWhoDislike(User user){
-        usersWhoDislike.add(user);
-        setTotalDislikes(usersWhoDislike.size());
-    }
-
-    public void removeUsersWhoDislike(User user){
-        usersWhoDislike.remove(user);
-        setTotalDislikes(usersWhoDislike.size());
-    }
 }

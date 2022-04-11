@@ -51,7 +51,7 @@ public class AnswerController {
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
         //Validates length of MultipartFile[]
-        if (answerDto.getFiles().length > 5)
+        if (answerDto.getFiles() != null && answerDto.getFiles().length > 5)
             return ResponseEntity.badRequest().body(new MessageResponse("Max 5 files are allowed"));
 
         return answerService.addAnswer(postId, answerDto, username);
@@ -108,7 +108,7 @@ public class AnswerController {
     @PreAuthorize("hasAuthority('USER')")
     @DeleteMapping("/{id}")
     @ApiOperation("Deletes the answer. Authentication required (USER)")
-    public ResponseEntity<?> deleteAnswer(@RequestParam Long id,
+    public ResponseEntity<?> deleteAnswer(@PathVariable Long id,
                                         @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -127,7 +127,7 @@ public class AnswerController {
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/like/{id}")
     @ApiOperation("Adds or removes like, depending on the previous state. Authentication required (USER)")
-    public ResponseEntity<?> like(@RequestParam Long id,
+    public ResponseEntity<?> like(@PathVariable Long id,
                                   @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -146,7 +146,7 @@ public class AnswerController {
     @PreAuthorize("hasAuthority('USER')")
     @PutMapping("/dislike/{id}")
     @ApiOperation("Adds or removes dislike, depending on the previous state. Authentication required (USER)")
-    public ResponseEntity<?> dislike(@RequestParam Long id,
+    public ResponseEntity<?> dislike(@PathVariable Long id,
                                      @CurrentSecurityContext(expression="authentication?.name") String username){
 
         //Validates id
@@ -157,14 +157,14 @@ public class AnswerController {
     }
 
     /**
-     * Method to fix or unfix a answer. ADMIN only
+     * Method to fix or unfix an answer. ADMIN only
      * @param id
-     * @return ResponseEntity (MessageResponse)
+     * @return ResponseEntity (ok: boolean(fixed), bad request: MessageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/fix/{id}")
     @ApiOperation("Fix answer. Authentication required (ADMIN)")
-    public ResponseEntity<?> fix(@RequestParam Long id){
+    public ResponseEntity<?> fix(@PathVariable Long id){
 
         //Validates id
         if (!answerRepository.existsById(id))

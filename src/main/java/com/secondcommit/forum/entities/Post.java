@@ -48,7 +48,7 @@ public class Post {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "USER_ID") })
-    private Set<User> usersWhoLike = new HashSet<>();
+    private List<User> usersWhoLike = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USERS_WHODISLIKE_POST",
@@ -57,7 +57,7 @@ public class Post {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "USER_ID") })
-    private Set<User> usersWhoDislike = new HashSet<>();
+    private List<User> usersWhoDislike = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "POST_FILES",
@@ -66,7 +66,7 @@ public class Post {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "FILE_ID") })
-    private Set<File> files = new HashSet<>();
+    private List<File> files = new ArrayList<>();
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "POST_ANSWERS",
@@ -75,7 +75,7 @@ public class Post {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "ANSWERS_ID") })
-    private Set<Answer> answers = new HashSet<>();
+    private List<Answer> answers = new ArrayList<>();
 
     @Column
     private int totalAnswers = 0;
@@ -96,7 +96,7 @@ public class Post {
         this.module = module;
     }
 
-    public Post(User author, String title, String content, Set<File> files, Module module) {
+    public Post(User author, String title, String content, List<File> files, Module module) {
         this.author = author;
         this.title = title;
         this.content = content;
@@ -105,53 +105,23 @@ public class Post {
         this.module = module;
     }
 
-    public void addUsersWhoLike(User user) {
-        usersWhoLike.add(user);
-        setTotalLikes(usersWhoLike.size());
-    }
-
-    public void removeUsersWhoLike(User user) {
-        usersWhoLike.remove(user);
-        setTotalLikes(usersWhoLike.size());
-    }
-
-    public void addUsersWhoDislike(User user) {
-        usersWhoDislike.add(user);
-        setTotalDislikes(usersWhoDislike.size());
-    }
-
-    public void removeUsersWhoDislike(User user){
-        usersWhoDislike.remove(user);
-        setTotalDislikes(usersWhoDislike.size());
-    }
-
-    public void addAnswer(Answer answer){
-        answers.add(answer);
-        setTotalAnswers(answers.size());
-    }
-
-    public void removeAnswer(Answer answer){
-        answers.remove(answer);
-        setTotalAnswers(answers.size());
-    }
-
     public PostDtoResponse getDtoFromPost(){
 
-        Set<String> filesUrl = new HashSet<>();
+        List<String> filesUrl = new ArrayList<>();
         if (files != null){
             for (File file : files){
                 filesUrl.add(file.getUrl());
             }
         }
 
-        Set<BasicUserDto> basicUsersWhoLike = new HashSet<>();
+        List<BasicUserDto> basicUsersWhoLike = new ArrayList<>();
         if (usersWhoLike != null){
             for (User user : usersWhoLike){
                 basicUsersWhoLike.add(new BasicUserDto(user.getId(), user.getUsername()));
             }
         }
 
-        Set<BasicUserDto> basicUsersWhoDislike = new HashSet<>();
+        List<BasicUserDto> basicUsersWhoDislike = new ArrayList<>();
         if (usersWhoDislike != null){
             for (User user : usersWhoDislike){
                 basicUsersWhoDislike.add(new BasicUserDto(user.getId(), user.getUsername()));

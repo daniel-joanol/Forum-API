@@ -3,7 +3,7 @@ package com.secondcommit.forum.dto;
 import com.secondcommit.forum.entities.Post;
 import lombok.Data;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * DTO with the response data sent after the creation of a new user
@@ -16,16 +16,16 @@ public class UserResponseDto {
     private String email;
     private String username;
     private String avatar;
-    private Set<BasicSubjectDtoResponse> hasAccess;
+    private List<BasicSubjectDtoResponse> hasAccess;
     private boolean isActivated;
-    private Set<BasicSubjectDtoResponse> followsSubject;
-    private Set<Post> followsPost;
+    private List<BasicSubjectDtoResponse> followsSubject;
+    private List<Post> followsPost;
 
     public UserResponseDto() {
     }
 
-    public UserResponseDto(Long id, String email, String username, String avatar, Set<BasicSubjectDtoResponse> hasAccess,
-                           boolean isActivated, Set<BasicSubjectDtoResponse> followsSubject, Set<Post> followsPost, String message) {
+    public UserResponseDto(Long id, String email, String username, String avatar, List<BasicSubjectDtoResponse> hasAccess,
+                           boolean isActivated, List<BasicSubjectDtoResponse> followsSubject, List<Post> followsPost, String message) {
         this.id = id;
         this.email = email;
         this.username = username;

@@ -86,14 +86,14 @@ public class UserServiceImpl implements UserService{
         //If it gets here, the validations were ok, so we create a new user
         User user = new User();
 
-        Set<Role> roles = new HashSet<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(roleRepository.findByName("USER").get());
 
         if (roleName.equalsIgnoreCase("ADMIN"))
             roles.add(roleRepository.findByName("ADMIN").get());
 
         //Validates subjects
-        Set<Subject> validSubjects = new HashSet<>();
+        List<Subject> validSubjects = new ArrayList<>();
 
         if (newUser.getHasAccess() != null){
             for (String strSubject : newUser.getHasAccess()){
@@ -285,7 +285,7 @@ public class UserServiceImpl implements UserService{
             userOpt.get().setIsActivated(userDto.getIsActivated());
 
         //Validates subjects
-        Set<Subject> validSubjects = new HashSet<>();
+        List<Subject> validSubjects = new ArrayList<>();
 
         if (userDto.getHasAccess() != null){
             for (String strSubject : userDto.getHasAccess()){

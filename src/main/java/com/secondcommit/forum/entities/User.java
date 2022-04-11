@@ -6,8 +6,8 @@ import lombok.Data;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity that manages the users in the database
@@ -58,7 +58,7 @@ public class User {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "ROLE_ID") })
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_SUBJECTS",
@@ -67,7 +67,7 @@ public class User {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "SUBJECT_ID") })
-    private Set<Subject> followsSubject = new HashSet<>();
+    private List<Subject> followsSubject = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinTable(name = "USER_HASACCESS_SUBJECTS",
@@ -76,7 +76,7 @@ public class User {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "SUBJECT_ID") })
-    private Set<Subject> hasAccess = new HashSet<>();
+    private List<Subject> hasAccess = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_POST",
@@ -85,20 +85,20 @@ public class User {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "POST_ID") })
-    private Set<Post> followsPost = new HashSet<>();
+    private List<Post> followsPost = new ArrayList<>();
 
     //Constructors
     public User() {
     }
 
-    public User(String email, String username, String password, Set<Role> roles) {
+    public User(String email, String username, String password, List<Role> roles) {
         this.email = email;
         this.username = username;
         this.roles = roles;
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, File avatar) {
+    public User(String email, String username, String password, List<Role> roles, File avatar) {
         this.email = email;
         this.username = username;
         this.avatar = avatar;
@@ -106,7 +106,7 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, List<Role> roles, List<Subject> hasAccess) {
         this.email = email;
         this.username = username;
         this.hasAccess = hasAccess;
@@ -114,7 +114,7 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, List<Role> roles, File avatar, List<Subject> hasAccess) {
         this.email = email;
         this.username = username;
         this.avatar = avatar;
@@ -128,13 +128,13 @@ public class User {
         String urlAvatar = "";
         if (avatar != null) urlAvatar = avatar.getUrl();
 
-        Set<BasicSubjectDtoResponse> hasAccessDto = new HashSet<>();
+        List<BasicSubjectDtoResponse> hasAccessDto = new ArrayList<>();
         if (hasAccess != null)
             for (Subject subject : hasAccess){
                 hasAccessDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));
             }
 
-        Set<BasicSubjectDtoResponse> followSubjectDto = new HashSet<>();
+        List<BasicSubjectDtoResponse> followSubjectDto = new ArrayList<>();
         if (followsSubject != null)
             for (Subject subject : followsSubject){
                 followSubjectDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));

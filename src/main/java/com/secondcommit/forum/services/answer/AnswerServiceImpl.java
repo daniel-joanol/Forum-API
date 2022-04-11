@@ -61,7 +61,7 @@ public class AnswerServiceImpl implements AnswerService{
         //Upload images to Cloudinary
         Set<File> files = new HashSet<>();
 
-        if (answerDto.getFiles().length > 0){
+        if (answerDto.getFiles() != null && answerDto.getFiles().length > 0){
             for (MultipartFile image : answerDto.getFiles()){
                 //Saves image in Cloudinary
                 try {
@@ -76,12 +76,12 @@ public class AnswerServiceImpl implements AnswerService{
         }
 
         //Creates answer
-        Answer answer = new Answer(answerDto.getContent(), userOpt.get(), files);
-        postOpt.get().addAnswer(answer);
+        Answer answer = new Answer(answerDto.getContent(), userOpt.get(), files, postOpt.get());
+        postOpt.get().getAnswers().add(answer);
         answerRepository.save(answer);
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(answer);
+        return ResponseEntity.ok(answer); //TODO: create answer dto
     }
 
     /**
@@ -166,6 +166,9 @@ public class AnswerServiceImpl implements AnswerService{
         //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
 
+        //Gets the post that this answer belongs to
+        Post post = answerOpt.get().getPost();
+
         //Tests if the user is allowed to edit this post (only authors and admins can do it)
         if (answerOpt.get().getAuthor() != userOpt.get()){
 
@@ -193,6 +196,10 @@ public class AnswerServiceImpl implements AnswerService{
             }
         }
 
+        //Removes answer from post
+        post.getAnswers().remove(answerOpt.get());
+
+        postRepository.save(post);
         answerRepository.delete(answerOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Answer " + id + " deleted with success"));
@@ -222,22 +229,22 @@ public class AnswerServiceImpl implements AnswerService{
 
         if (alreadyLiked){
             //Removes like
-            answerOpt.get().removeUsersWhoLike(userOpt.get());
+            answerOpt.get().getUsersWhoLike().remove(userOpt.get());
         } else {
 
             //Adds like
-            answerOpt.get().addUsersWhoLike(userOpt.get());
+            answerOpt.get().getUsersWhoLike().add(userOpt.get());
 
             //Removes from dislike
             for (User user : answerOpt.get().getUsersWhoDislike()){
-                if (userOpt.get() == user) answerOpt.get().removeUsersWhoDislike(userOpt.get());
+                if (userOpt.get() == user) answerOpt.get().getUsersWhoDislike().remove(userOpt.get());
             }
 
         }
 
         answerRepository.save(answerOpt.get());
 
-        return ResponseEntity.ok(answerOpt.get().getTotalLikes());
+        return ResponseEntity.ok(new MessageResponse("Likes: " + answerOpt.get().getTotalLikes()));
     }
 
     /**
@@ -264,21 +271,21 @@ public class AnswerServiceImpl implements AnswerService{
 
         if (alreadyDisliked){
             //Removes dislike
-            answerOpt.get().removeUsersWhoDislike(userOpt.get());
+            answerOpt.get().getUsersWhoDislike().remove(userOpt.get());
         } else {
 
             //Adds dislike
-            answerOpt.get().addUsersWhoDislike(userOpt.get());
+            answerOpt.get().getUsersWhoDislike().add(userOpt.get());
 
             //Removes from like
             for (User user : answerOpt.get().getUsersWhoLike()){
-                if (userOpt.get() == user) answerOpt.get().removeUsersWhoLike(userOpt.get());
+                if (userOpt.get() == user) answerOpt.get().getUsersWhoLike().remove(userOpt.get());
             }
         }
 
         answerRepository.save(answerOpt.get());
 
-        return ResponseEntity.ok(answerOpt.get().getTotalDislikes());
+        return ResponseEntity.ok(new MessageResponse("Dislikes: " + answerOpt.get().getTotalDislikes()));
     }
 
     /**
@@ -304,6 +311,6 @@ public class AnswerServiceImpl implements AnswerService{
 
         answerRepository.save(answerOpt.get());
 
-        return ResponseEntity.ok(answerOpt.get().isFixed());
+        return ResponseEntity.ok(new MessageResponse("Fixed: " + answerOpt.get().isFixed()));
     }
 }

@@ -56,16 +56,6 @@ public class Module {
         this.subject = subject;
     }
 
-    public void addPost(Post post){
-        posts.add(post);
-        totalQuestions = posts.size();
-    }
-
-    public void removePost(Post post){
-        posts.remove(post);
-        totalQuestions = posts.size();
-    }
-
     public ModuleDtoResponse getDtoFromModule(){
         return new ModuleDtoResponse(id, name, description, totalQuestions);
     }

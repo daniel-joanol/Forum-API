@@ -88,7 +88,7 @@ public class PostServiceImpl implements PostService{
 
         //Creates the new post
         Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent(), moduleOpt.get());
-        moduleOpt.get().addPost(post);
+        moduleOpt.get().getPosts().add(post);
         postRepository.save(post);
         moduleRepository.save(moduleOpt.get());
 
@@ -267,15 +267,15 @@ public class PostServiceImpl implements PostService{
 
         if (alreadyLiked){
             //Removes like
-            postOpt.get().removeUsersWhoLike(userOpt.get());
+            postOpt.get().getUsersWhoLike().remove(userOpt.get());
         } else {
 
             //Adds like
-            postOpt.get().addUsersWhoLike(userOpt.get());
+            postOpt.get().getUsersWhoLike().add(userOpt.get());
 
             //Removes from dislike
             for (User user : postOpt.get().getUsersWhoDislike()){
-                if (userOpt.get() == user) postOpt.get().removeUsersWhoDislike(userOpt.get());
+                if (userOpt.get() == user) postOpt.get().getUsersWhoDislike().remove(userOpt.get());
             }
 
         }
@@ -309,15 +309,15 @@ public class PostServiceImpl implements PostService{
 
         if (alreadyDisliked){
             //Removes dislike
-            postOpt.get().removeUsersWhoDislike(userOpt.get());
+            postOpt.get().getUsersWhoDislike().remove(userOpt.get());
         } else {
 
             //Adds dislike
-            postOpt.get().addUsersWhoDislike(userOpt.get());
+            postOpt.get().getUsersWhoDislike().add(userOpt.get());
 
             //Removes from like
             for (User user : postOpt.get().getUsersWhoLike()){
-                if (userOpt.get() == user) postOpt.get().removeUsersWhoLike(userOpt.get());
+                if (userOpt.get() == user) postOpt.get().getUsersWhoLike().remove(userOpt.get());
             }
         }
 

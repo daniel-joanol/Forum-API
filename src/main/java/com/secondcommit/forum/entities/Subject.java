@@ -44,7 +44,7 @@ public class Subject {
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "MODULE_ID") })
-    private List<Module> modules;
+    private List<Module> modules = new ArrayList<>();
 
     @ManyToMany(mappedBy = "hasAccess")
     private List<User> usersWithAccess = new ArrayList<>();
