@@ -2,6 +2,7 @@ package com.secondcommit.forum.entities;
 
 import com.secondcommit.forum.dto.AnswerResponseDto;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.*;
@@ -10,6 +11,7 @@ import java.util.*;
  * Entity that manages the answer in the database
  */
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "answers")
 public class Answer {
@@ -65,9 +67,6 @@ public class Answer {
     private Post post;
 
     //Constructors
-    public Answer() {
-    }
-
     public Answer(String content, User author, Post post) {
         this.content = content;
         this.author = author;

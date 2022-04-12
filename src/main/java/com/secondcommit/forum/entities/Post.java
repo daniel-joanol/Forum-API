@@ -3,6 +3,7 @@ package com.secondcommit.forum.entities;
 import com.secondcommit.forum.dto.BasicUserDto;
 import com.secondcommit.forum.dto.PostDtoResponse;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.*;
  * Entity that manages the posts in the database
  */
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -84,10 +86,6 @@ public class Post {
     private Module module;
 
     //Constructors
-
-    public Post() {
-    }
-
     public Post(User author, String title, String content, Module module) {
         this.author = author;
         this.title = title;

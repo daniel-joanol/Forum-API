@@ -1,6 +1,8 @@
 package com.secondcommit.forum.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
@@ -9,6 +11,8 @@ import java.util.Set;
  * DTO with the required data for the creation of a new user
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class NewUserRequest {
 
     private String email;
@@ -16,21 +20,5 @@ public class NewUserRequest {
     private String password;
     private Set<String> hasAccess;
     private MultipartFile avatar;
-
-    public NewUserRequest() {
-    }
-
-    public NewUserRequest(String email, String username, String password) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-    }
-
-    public NewUserRequest(String email, String username, String password, Set<String> hasAccess) {
-        this.email = email;
-        this.username = username;
-        this.password = password;
-        this.hasAccess = hasAccess;
-    }
 
 }

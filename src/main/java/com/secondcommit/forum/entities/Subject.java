@@ -3,6 +3,7 @@ package com.secondcommit.forum.entities;
 import com.secondcommit.forum.dto.ModuleDtoResponse;
 import com.secondcommit.forum.dto.SubjectDtoResponse;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Set;
  * Entity that manages the subjects in the database
  */
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "subjects")
 public class Subject {
@@ -52,9 +54,7 @@ public class Subject {
     @ManyToMany(mappedBy = "followsSubject")
     private List<User> usersFollowing = new ArrayList<>();
 
-    public Subject() {
-    }
-
+    //Constructors
     public Subject(String name) {
         this.name = name;
     }

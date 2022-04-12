@@ -1,6 +1,8 @@
 package com.secondcommit.forum.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
@@ -8,6 +10,8 @@ import java.util.Set;
  * Dto with the subject data send in responses
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class SubjectDtoResponse {
 
     private Long id;
@@ -15,19 +19,9 @@ public class SubjectDtoResponse {
     private String avatar;
     private Set<ModuleDtoResponse> modules;
 
-    public SubjectDtoResponse() {
-    }
-
     public SubjectDtoResponse(Long id, String name) {
         this.id = id;
         this.name = name;
-    }
-
-    public SubjectDtoResponse(Long id, String name, String avatar, Set<ModuleDtoResponse> modules) {
-        this.id = id;
-        this.name = name;
-        this.avatar = avatar;
-        this.modules = modules;
     }
 
 }

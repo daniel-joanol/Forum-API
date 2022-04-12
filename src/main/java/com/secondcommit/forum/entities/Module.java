@@ -2,6 +2,7 @@ package com.secondcommit.forum.entities;
 
 import com.secondcommit.forum.dto.ModuleDtoResponse;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
  * Entity that manages the subjects in the database
  */
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "modules")
 public class Module {
@@ -38,9 +40,6 @@ public class Module {
 
     @ManyToOne
     private Subject subject;
-
-    public Module() {
-    }
 
     public Module(String name, String description, Subject subject) {
         this.name = name;

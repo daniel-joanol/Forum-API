@@ -1,7 +1,9 @@
 package com.secondcommit.forum.dto;
 
 import com.secondcommit.forum.entities.Answer;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +12,8 @@ import java.util.List;
  * Dto with the post data for responses
  */
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDtoResponse {
 
     private Long id;
@@ -25,26 +29,5 @@ public class PostDtoResponse {
     private List<String> files;
     private List<BasicUserDto> usersWhoLike;
     private List<BasicUserDto> usersWhoDisike;
-
-    public PostDtoResponse() {
-    }
-
-    public PostDtoResponse(Long id, String title, String content, String author, Integer totalLikes, Integer totalDislikes,
-                           Date date, Boolean fixed, List<Answer> answers, Integer totalAnswers, List<String> files,
-                           List<BasicUserDto> usersWhoLike, List<BasicUserDto> usersWhoDisike) {
-        this.id = id;
-        this.title = title;
-        this.content = content;
-        this.author = author;
-        this.totalLikes = totalLikes;
-        this.totalDislikes = totalDislikes;
-        this.date = date;
-        this.fixed = fixed;
-        this.answers = answers;
-        this.totalAnswers = totalAnswers;
-        this.files = files;
-        this.usersWhoLike = usersWhoLike;
-        this.usersWhoDisike = usersWhoDisike;
-    }
 
 }

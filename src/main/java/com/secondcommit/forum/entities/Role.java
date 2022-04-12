@@ -1,6 +1,7 @@
 package com.secondcommit.forum.entities;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
@@ -9,6 +10,7 @@ import javax.persistence.*;
  */
 @Data
 @Entity
+@NoArgsConstructor
 @Table(name = "roles")
 public class Role {
 
@@ -18,9 +20,6 @@ public class Role {
 
     @Column(unique = true, nullable = false)
     private String name;
-
-    public Role() {
-    }
 
     public Role(String name) {
         this.name = name;

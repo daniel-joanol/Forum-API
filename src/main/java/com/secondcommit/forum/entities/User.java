@@ -3,6 +3,7 @@ package com.secondcommit.forum.entities;
 import com.secondcommit.forum.dto.BasicSubjectDtoResponse;
 import com.secondcommit.forum.dto.UserResponseDto;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -13,6 +14,7 @@ import java.util.List;
  * Entity that manages the users in the database
  */
 @Data
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -88,9 +90,6 @@ public class User {
     private List<Post> followsPost = new ArrayList<>();
 
     //Constructors
-    public User() {
-    }
-
     public User(String email, String username, String password, List<Role> roles) {
         this.email = email;
         this.username = username;
