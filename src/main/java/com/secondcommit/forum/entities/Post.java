@@ -105,11 +105,6 @@ public class Post {
         this.module = module;
     }
 
-    public void refreshLikes(){
-        totalLikes = usersWhoLike.size();
-        totalDislikes = usersWhoDislike.size();
-    }
-
     public PostDtoResponse getDtoFromPost(){
 
         List<String> filesUrl = new ArrayList<>();
@@ -135,5 +130,14 @@ public class Post {
 
         return new PostDtoResponse(id, title, content, author.getUsername(), totalLikes,
                 totalDislikes, date, fixed, answers, totalAnswers, filesUrl, basicUsersWhoLike, basicUsersWhoDislike);
+    }
+
+    public void refreshLikes(){
+        totalLikes = usersWhoLike.size();
+        totalDislikes = usersWhoDislike.size();
+    }
+
+    public void refreshTotalAnswers(){
+        totalAnswers = answers.size();
     }
 }

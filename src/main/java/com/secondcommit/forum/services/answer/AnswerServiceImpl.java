@@ -76,6 +76,7 @@ public class AnswerServiceImpl implements AnswerService{
         //Creates answer
         Answer answer = new Answer(answerDto.getContent(), userOpt.get(), files, postOpt.get());
         postOpt.get().getAnswers().add(answer);
+        postOpt.get().refreshTotalAnswers();
         answerRepository.save(answer);
         postRepository.save(postOpt.get());
 
@@ -196,6 +197,7 @@ public class AnswerServiceImpl implements AnswerService{
 
         //Removes answer from post
         post.getAnswers().remove(answerOpt.get());
+        post.refreshTotalAnswers();
         postRepository.save(post);
         answerRepository.delete(answerOpt.get());
 
@@ -240,7 +242,6 @@ public class AnswerServiceImpl implements AnswerService{
         }
 
         answerOpt.get().refreshLikes();
-
         answerRepository.save(answerOpt.get());
 
         return ResponseEntity.ok(new MessageResponse("Likes: " + answerOpt.get().getTotalLikes()));
@@ -283,7 +284,6 @@ public class AnswerServiceImpl implements AnswerService{
         }
 
         answerOpt.get().refreshLikes();
-
         answerRepository.save(answerOpt.get());
 
         return ResponseEntity.ok(new MessageResponse("Dislikes: " + answerOpt.get().getTotalDislikes()));

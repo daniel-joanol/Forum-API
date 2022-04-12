@@ -81,6 +81,4 @@ public class Subject {
     public void refreshTotalModules(){
         totalModules = modules.size();
     }
-
-    //TODO: Check entities and services for method refreshTotal...
 }

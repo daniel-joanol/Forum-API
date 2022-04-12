@@ -56,11 +56,11 @@ public class Module {
         this.subject = subject;
     }
 
-    public void refreshTotalQuestions(){
-        totalQuestions = posts.size();
-    }
-
     public ModuleDtoResponse getDtoFromModule(){
         return new ModuleDtoResponse(id, name, description, totalQuestions);
+    }
+
+    public void refreshTotalQuestions(){
+        totalQuestions = posts.size();
     }
 }

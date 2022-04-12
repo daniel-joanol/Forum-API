@@ -294,7 +294,6 @@ public class PostServiceImpl implements PostService{
         }
 
         postOpt.get().refreshLikes();
-
         postRepository.save(postOpt.get());
 
         return ResponseEntity.ok(new MessageResponse("Likes: " + postOpt.get().getTotalLikes()));
