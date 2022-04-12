@@ -59,7 +59,7 @@ public class Post {
                     @JoinColumn(name = "USER_ID") })
     private List<User> usersWhoDislike = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "POST_FILES",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
@@ -68,7 +68,7 @@ public class Post {
                     @JoinColumn(name = "FILE_ID") })
     private List<File> files = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinTable(name = "POST_ANSWERS",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")

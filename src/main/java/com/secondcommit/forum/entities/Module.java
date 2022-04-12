@@ -27,7 +27,7 @@ public class Module {
     @Column(name = "total_questions")
     private Integer totalQuestions = 0;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinTable(name = "MODULE_POSTS",
             joinColumns = {
                     @JoinColumn(name = "MODULE_ID")

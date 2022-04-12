@@ -106,6 +106,11 @@ public class ModuleServiceImpl implements ModuleService{
         //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
+        //Removes module from subject before removing the module
+        Subject subject = moduleOpt.get().getSubject();
+        subject.getModules().remove(moduleOpt.get());
+        subject.refreshTotalModules();
+        subjectRepository.save(subject);
         moduleRepository.delete(moduleOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Module " + id + " deleted with success"));

@@ -54,6 +54,7 @@ public class SubjectServiceImpl implements SubjectService {
      */
     @Override
     public ResponseEntity<?> addSubject(SubjectDto subjectDto) {
+
         //Tests if it already exists
         Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
 

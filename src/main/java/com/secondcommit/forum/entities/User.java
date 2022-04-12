@@ -69,7 +69,7 @@ public class User {
                     @JoinColumn(name = "SUBJECT_ID") })
     private List<Subject> followsSubject = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_HASACCESS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")

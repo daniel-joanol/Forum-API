@@ -28,7 +28,7 @@ public class Subject {
     @Column(name = "total_modules")
     private Integer totalModules = 0;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "SUBJECT_AVATAR",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
@@ -37,7 +37,7 @@ public class Subject {
                     @JoinColumn(name = "AVATAR_ID") })
     private File avatar;
 
-    @OneToMany(fetch = FetchType.EAGER)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinTable(name = "SUBJECT_MODULES",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
@@ -82,6 +82,5 @@ public class Subject {
         totalModules = modules.size();
     }
 
-    //TODO: Delete module doesn't work, together with other delete methods. I need to study the relations between entities
     //TODO: Check entities and services for method refreshTotal...
 }

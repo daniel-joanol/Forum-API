@@ -21,7 +21,7 @@ public class Answer {
     @Column(length = 1048, nullable = false)
     private String content;
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER)
     private User author;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -43,7 +43,7 @@ public class Answer {
     @Column(name = "total_dislikes")
     private Integer totalDislikes = 0;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHOLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
@@ -52,7 +52,7 @@ public class Answer {
                     @JoinColumn(name = "USER_ID") })
     private List<User> usersWhoLike = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHODISLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")

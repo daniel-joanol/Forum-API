@@ -249,13 +249,8 @@ public class PostServiceImpl implements PostService{
         Module module = postOpt.get().getModule();
         module.getPosts().remove(postOpt.get());
         module.refreshTotalQuestions();
-        //module.setSubject(null); //No error here, but it removes the subject too. Why? Who knows, it's Java
         moduleRepository.save(module);
 
-        //Remove answers
-        answerService.deleteAnswer(postOpt.get());
-
-        //TODO: Find out why is this trying to remove the subject
         postRepository.delete(postOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Post " + id + " deleted with success"));
@@ -302,7 +297,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().getTotalLikes());
+        return ResponseEntity.ok(new MessageResponse("Likes: " + postOpt.get().getTotalLikes()));
     }
 
     /**
@@ -345,7 +340,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().getTotalDislikes());
+        return ResponseEntity.ok(new MessageResponse("Dislikes: " + postOpt.get().getTotalDislikes()));
     }
 
     /**
@@ -371,7 +366,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().getFixed());
+        return ResponseEntity.ok(new MessageResponse("Fixed: " + postOpt.get().getFixed()));
     }
 
     /**

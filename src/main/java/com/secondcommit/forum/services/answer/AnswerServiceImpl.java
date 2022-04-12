@@ -203,38 +203,6 @@ public class AnswerServiceImpl implements AnswerService{
     }
 
     /**
-     * Method to delete a list of answers, used only when you try to remove a post
-     * @param post
-     * @return
-     */
-    @Override
-    public void deleteAnswer(Post post) {
-
-        for (Answer answer : post.getAnswers()) {
-
-            //Remove files
-            if (answer.getFiles() != null) {
-                for (File file : answer.getFiles()) {
-                    try {
-                        Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
-                        if (destroyed) answer.getFiles().remove(file);
-
-                    } catch (IOException e) {
-                        System.err.println("Error: " + e.getMessage());
-                    }
-                }
-            }
-
-            //Removes answer from post
-            post.getAnswers().remove(answer);
-            postRepository.save(post);
-            answerRepository.delete(answer);
-        }
-
-        return;
-    }
-
-    /**
      * Method to add a like to the answer. If the user has already liked the answer, just removes the like
      * @param id
      * @param username (gets from the jwt token)
