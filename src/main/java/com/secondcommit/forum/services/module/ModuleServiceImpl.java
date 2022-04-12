@@ -50,6 +50,7 @@ public class ModuleServiceImpl implements ModuleService{
         //Creates the new module
         Module module = new Module(moduleDto.getName(), moduleDto.getDescription(), subjectOpt.get());
         subjectOpt.get().getModules().add(module);
+        subjectOpt.get().refreshTotalModules();
         moduleRepository.save(module);
         subjectRepository.save(subjectOpt.get());
 

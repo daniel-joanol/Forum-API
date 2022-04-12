@@ -78,5 +78,10 @@ public class Subject {
         return new SubjectDtoResponse(id, name, backupAvatar , modulesDto);
     }
 
+    public void refreshTotalModules(){
+        totalModules = modules.size();
+    }
+
     //TODO: Delete module doesn't work, together with other delete methods. I need to study the relations between entities
+    //TODO: Check entities and services for method refreshTotal...
 }

@@ -3,6 +3,7 @@ package com.secondcommit.forum.services.post;
 import com.secondcommit.forum.entities.*;
 import com.secondcommit.forum.entities.Module;
 import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.services.answer.AnswerServiceImpl;
 import com.secondcommit.forum.services.cloudinary.CloudinaryServiceImpl;
 import com.secondcommit.forum.dto.PostDto;
 import com.secondcommit.forum.repositories.PostRepository;
@@ -34,11 +35,16 @@ public class PostServiceImpl implements PostService{
     @Autowired
     private ModuleRepository moduleRepository;
 
-    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CloudinaryServiceImpl cloudinary, ModuleRepository moduleRepository) {
+    @Autowired
+    private AnswerServiceImpl answerService;
+
+    public PostServiceImpl(PostRepository postRepository, UserRepository userRepository, CloudinaryServiceImpl cloudinary,
+                           ModuleRepository moduleRepository, AnswerServiceImpl answerService) {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.cloudinary = cloudinary;
         this.moduleRepository = moduleRepository;
+        this.answerService = answerService;
     }
 
     /**
@@ -89,6 +95,7 @@ public class PostServiceImpl implements PostService{
         //Creates the new post
         Post post = new Post(userOpt.get(), postDto.getTitle(), postDto.getContent(), moduleOpt.get());
         moduleOpt.get().getPosts().add(post);
+        moduleOpt.get().refreshTotalQuestions();
         postRepository.save(post);
         moduleRepository.save(moduleOpt.get());
 
@@ -238,6 +245,17 @@ public class PostServiceImpl implements PostService{
             }
         }
 
+        //Removes Post from Module
+        Module module = postOpt.get().getModule();
+        module.getPosts().remove(postOpt.get());
+        module.refreshTotalQuestions();
+        //module.setSubject(null); //No error here, but it removes the subject too. Why? Who knows, it's Java
+        moduleRepository.save(module);
+
+        //Remove answers
+        answerService.deleteAnswer(postOpt.get());
+
+        //TODO: Find out why is this trying to remove the subject
         postRepository.delete(postOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Post " + id + " deleted with success"));
@@ -280,6 +298,8 @@ public class PostServiceImpl implements PostService{
 
         }
 
+        postOpt.get().refreshLikes();
+
         postRepository.save(postOpt.get());
 
         return ResponseEntity.ok(postOpt.get().getTotalLikes());
@@ -321,6 +341,8 @@ public class PostServiceImpl implements PostService{
             }
         }
 
+        postOpt.get().refreshLikes();
+
         postRepository.save(postOpt.get());
 
         return ResponseEntity.ok(postOpt.get().getTotalDislikes());
@@ -341,7 +363,7 @@ public class PostServiceImpl implements PostService{
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Fix or unfix the post
-        if (postOpt.get().isFixed()){
+        if (postOpt.get().getFixed()){
             postOpt.get().setFixed(false);
         } else {
             postOpt.get().setFixed(true);
@@ -349,7 +371,7 @@ public class PostServiceImpl implements PostService{
 
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(postOpt.get().isFixed());
+        return ResponseEntity.ok(postOpt.get().getFixed());
     }
 
     /**

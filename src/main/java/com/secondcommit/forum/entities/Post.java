@@ -29,19 +29,19 @@ public class Post {
     private String content;
 
     @Column(name = "total_likes")
-    private int totalLikes = 0;
+    private Integer totalLikes = 0;
 
     @Column(name = "total_dislikes")
-    private int totalDislikes = 0;
+    private Integer totalDislikes = 0;
 
     private Date date = new Date();
 
-    private boolean fixed = false;
+    private Boolean fixed = false;
 
     @ManyToMany(mappedBy ="followsPost")
     private List<User> usersFollowing = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHOLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
@@ -50,7 +50,7 @@ public class Post {
                     @JoinColumn(name = "USER_ID") })
     private List<User> usersWhoLike = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHODISLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
@@ -68,7 +68,7 @@ public class Post {
                     @JoinColumn(name = "FILE_ID") })
     private List<File> files = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "POST_ANSWERS",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
@@ -78,7 +78,7 @@ public class Post {
     private List<Answer> answers = new ArrayList<>();
 
     @Column
-    private int totalAnswers = 0;
+    private Integer totalAnswers = 0;
 
     @ManyToOne
     private Module module;
@@ -103,6 +103,11 @@ public class Post {
         this.files = files;
         date = new Date();
         this.module = module;
+    }
+
+    public void refreshLikes(){
+        totalLikes = usersWhoLike.size();
+        totalDislikes = usersWhoDislike.size();
     }
 
     public PostDtoResponse getDtoFromPost(){

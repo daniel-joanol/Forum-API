@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Implementation of the Answer service interface
@@ -59,7 +57,7 @@ public class AnswerServiceImpl implements AnswerService{
         Optional<User> userOpt = userRepository.findByUsername(author);
 
         //Upload images to Cloudinary
-        Set<File> files = new HashSet<>();
+        List<File> files = new ArrayList<>();
 
         if (answerDto.getFiles() != null && answerDto.getFiles().length > 0){
             for (MultipartFile image : answerDto.getFiles()){
@@ -81,7 +79,7 @@ public class AnswerServiceImpl implements AnswerService{
         answerRepository.save(answer);
         postRepository.save(postOpt.get());
 
-        return ResponseEntity.ok(answer); //TODO: create answer dto
+        return ResponseEntity.ok(answer.getDtoFromAnswer());
     }
 
     /**
@@ -92,8 +90,8 @@ public class AnswerServiceImpl implements AnswerService{
     @Override
     public ResponseEntity<?> getAnswer(Long id) {
 
-        Optional<Answer> answer = answerRepository.findById(id);
-        return ResponseEntity.ok(answer);
+        Optional<Answer> answerOpt = answerRepository.findById(id);
+        return ResponseEntity.ok(answerOpt.get().getDtoFromAnswer());
 
     }
 
@@ -148,7 +146,7 @@ public class AnswerServiceImpl implements AnswerService{
         answerOpt.get().setContent(answerDto.getContent());
         answerRepository.save(answerOpt.get());
 
-        return ResponseEntity.ok(answerOpt.get());
+        return ResponseEntity.ok(answerOpt.get().getDtoFromAnswer());
     }
 
     /**
@@ -169,8 +167,8 @@ public class AnswerServiceImpl implements AnswerService{
         //Gets the post that this answer belongs to
         Post post = answerOpt.get().getPost();
 
-        //Tests if the user is allowed to edit this post (only authors and admins can do it)
-        if (answerOpt.get().getAuthor() != userOpt.get()){
+        //Tests if the user is allowed to edit this post (only authors of the post or answer, and admins can do it)
+        if (answerOpt.get().getAuthor() != userOpt.get() && post.getAuthor() != userOpt.get()){
 
             boolean isAdmin = false;
 
@@ -198,11 +196,42 @@ public class AnswerServiceImpl implements AnswerService{
 
         //Removes answer from post
         post.getAnswers().remove(answerOpt.get());
-
         postRepository.save(post);
         answerRepository.delete(answerOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Answer " + id + " deleted with success"));
+    }
+
+    /**
+     * Method to delete a list of answers, used only when you try to remove a post
+     * @param post
+     * @return
+     */
+    @Override
+    public void deleteAnswer(Post post) {
+
+        for (Answer answer : post.getAnswers()) {
+
+            //Remove files
+            if (answer.getFiles() != null) {
+                for (File file : answer.getFiles()) {
+                    try {
+                        Boolean destroyed = cloudinary.deleteFile(file.getCloudinaryId());
+                        if (destroyed) answer.getFiles().remove(file);
+
+                    } catch (IOException e) {
+                        System.err.println("Error: " + e.getMessage());
+                    }
+                }
+            }
+
+            //Removes answer from post
+            post.getAnswers().remove(answer);
+            postRepository.save(post);
+            answerRepository.delete(answer);
+        }
+
+        return;
     }
 
     /**
@@ -241,6 +270,8 @@ public class AnswerServiceImpl implements AnswerService{
             }
 
         }
+
+        answerOpt.get().refreshLikes();
 
         answerRepository.save(answerOpt.get());
 
@@ -283,6 +314,8 @@ public class AnswerServiceImpl implements AnswerService{
             }
         }
 
+        answerOpt.get().refreshLikes();
+
         answerRepository.save(answerOpt.get());
 
         return ResponseEntity.ok(new MessageResponse("Dislikes: " + answerOpt.get().getTotalDislikes()));
@@ -303,7 +336,7 @@ public class AnswerServiceImpl implements AnswerService{
             return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Fix or unfix the answer
-        if (answerOpt.get().isFixed()){
+        if (answerOpt.get().getFixed()){
             answerOpt.get().setFixed(false);
         } else {
             answerOpt.get().setFixed(true);
@@ -311,6 +344,6 @@ public class AnswerServiceImpl implements AnswerService{
 
         answerRepository.save(answerOpt.get());
 
-        return ResponseEntity.ok(new MessageResponse("Fixed: " + answerOpt.get().isFixed()));
+        return ResponseEntity.ok(new MessageResponse("Fixed: " + answerOpt.get().getFixed()));
     }
 }

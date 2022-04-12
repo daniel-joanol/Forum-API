@@ -27,7 +27,7 @@ public class Module {
     @Column(name = "total_questions")
     private Integer totalQuestions = 0;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "MODULE_POSTS",
             joinColumns = {
                     @JoinColumn(name = "MODULE_ID")
@@ -54,6 +54,10 @@ public class Module {
         this.posts = posts;
         totalQuestions = posts.size();
         this.subject = subject;
+    }
+
+    public void refreshTotalQuestions(){
+        totalQuestions = posts.size();
     }
 
     public ModuleDtoResponse getDtoFromModule(){
