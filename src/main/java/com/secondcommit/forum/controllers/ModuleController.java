@@ -1,6 +1,8 @@
 package com.secondcommit.forum.controllers;
 
 import com.secondcommit.forum.dto.ModuleDto;
+import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import com.secondcommit.forum.services.module.ModuleServiceImpl;
 import io.swagger.annotations.ApiOperation;
@@ -16,65 +18,90 @@ import org.springframework.web.bind.annotation.*;
 public class ModuleController {
 
     private final ModuleServiceImpl moduleService;
+    private final ModuleRepository moduleRepository;
+    private final SubjectRepository subjectRepository;
 
-    public ModuleController(ModuleServiceImpl moduleService){
+    public ModuleController(ModuleServiceImpl moduleService, ModuleRepository moduleRepository,
+                            SubjectRepository subjectRepository){
         this.moduleService = moduleService;
+        this.moduleRepository = moduleRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
-     * Creates a new module from moduleDto
+     * Method to create a new module from moduleDto. ADMIN only
      * @param moduleDto
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity (ok: Module, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/")
-    @ApiOperation("Creates new module")
-    public ResponseEntity<?> newModule(@RequestBody ModuleDto moduleDto){
+    @PostMapping("/{postId}")
+    @ApiOperation("Creates new module. Authentication required (ADMIN)")
+    public ResponseEntity<?> newModule(@PathVariable Long postId,@RequestBody ModuleDto moduleDto){
 
+        //Validates id
+        if(!subjectRepository.existsById(postId))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
+        //Validates Dto
         if (moduleDto.getName() == null || moduleDto.getDescription() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
 
-        return moduleService.addModule(moduleDto);
+        return moduleService.addModule(postId, moduleDto);
     }
 
     /**
-     * Gets all module data
+     * Method to get all data in a module
      * @param id
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity (ok: Module, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("/{id}")
-    @ApiOperation("Gets all module data")
+    @ApiOperation("Gets all module data. Authentication required (user)")
     public ResponseEntity<?> getModule(@PathVariable Long id){
+
+        //Validates ID
+        if (!moduleRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
         return moduleService.getModule(id);
     }
 
     /**
-     * Method that updates the module
+     * Method that updates the module. ADMIN only
      * @param id
      * @param moduleDto
-     * @return ResponseEntity<Module>
+     * @return ResponseEntity (ok: Module, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/{id}")
-    @ApiOperation("Updates module data")
+    @ApiOperation("Updates module data. Authentication required (ADMIN)")
     public ResponseEntity<?> updateModule(@PathVariable Long id, @RequestBody ModuleDto moduleDto){
 
+        //Validates DTO
         if (moduleDto.getName() == null && moduleDto.getDescription() == null)
             return ResponseEntity.badRequest().body(new MessageResponse("Missing parameters"));
+
+        //Validates ID
+        if (!moduleRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         return moduleService.updateModule(id, moduleDto);
     }
 
     /**
-     * Deletes module
+     * Deletes module. ADMIN only
      * @param id
-     * @return ResponseEntity
+     * @return ResponseEntity (MessageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("/{id}")
-    @ApiOperation("Deletes module")
+    @ApiOperation("Deletes module. Authentication required (ADMIN)")
     public ResponseEntity<?> deleteModule(@PathVariable Long id){
+
+        //Validates ID
+        if (!moduleRepository.existsById(id))
+            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
+
         return moduleService.deleteModule(id);
     }
 }

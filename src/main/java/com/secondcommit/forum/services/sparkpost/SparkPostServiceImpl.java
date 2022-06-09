@@ -8,6 +8,7 @@ import com.sparkpost.exception.SparkPostException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.Random;
 
 /**
@@ -43,7 +44,8 @@ public class SparkPostServiceImpl implements SparkPostService{
                     "contacto@ob.danieljoanol.com",
                     user.getEmail(),
                     "Your activation code",
-                    "Hello, your activation code is: " + validationCode,
+                    "Hello, your activation code is: " + validationCode +  "\n"
+                            + "Remember that your code expires in 5 minutes",
                     "Hello, your activation code is: " + validationCode);
         } catch (SparkPostException e){
             e.printStackTrace();
@@ -51,6 +53,7 @@ public class SparkPostServiceImpl implements SparkPostService{
 
         //Saves the new validation code
         user.setActivationCode(validationCode);
+        user.setTimeStamp(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
 
         return ResponseEntity.ok().body(new MessageResponse("Check your email account"));
@@ -95,7 +98,8 @@ public class SparkPostServiceImpl implements SparkPostService{
                     "contacto@ob.danieljoanol.com",
                     user.getEmail(),
                     "Forgot your password?",
-                    "Hello, your validation code is: " + validationCode,
+                    "Hello, your validation code is: " + validationCode + "\n"
+                            + "Remember that your code expires in 5 minutes",
                     "Hello, your validation code is: " + validationCode);
         } catch (SparkPostException e){
             e.printStackTrace();
@@ -103,6 +107,7 @@ public class SparkPostServiceImpl implements SparkPostService{
 
         //Saves the new validation code
         user.setValidationCode(validationCode);
+        user.setTimeStamp(new Timestamp(System.currentTimeMillis()));
         userRepository.save(user);
 
         return ResponseEntity.ok().body(new MessageResponse("Check your email account"));

@@ -1,14 +1,20 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.BasicSubjectDtoResponse;
 import com.secondcommit.forum.dto.UserResponseDto;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entity that manages the users in the database
  */
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "users")
 public class User {
@@ -17,23 +23,25 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String username;
 
-    @Column
+    @Column(nullable = false)
     private String password;
 
-    @Column
+    @Column(name = "is_activated")
     private Boolean isActivated = false;
 
-    @Column
+    @Column(name = "time_stamp")
+    private Timestamp timeStamp;
+
+    @Column(name = "validation_code")
     private Integer validationCode;
 
-    @Column
-
+    @Column(name = "activation_code")
     private Integer activationCode;
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -45,54 +53,51 @@ public class User {
                     @JoinColumn(name = "FILE_ID") })
     private File avatar;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_ROLES",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "ROLE_ID") })
-    private Set<Role> roles = new HashSet<>();
+    private List<Role> roles = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "SUBJECT_ID") })
-    private Set<Subject> followsSubject = new HashSet<>();
+    private List<Subject> followsSubject = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_HASACCESS_SUBJECTS",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "SUBJECT_ID") })
-    private Set<Subject> hasAccess = new HashSet<>();
+    private List<Subject> hasAccess = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USER_FOLLOWS_POST",
             joinColumns = {
                     @JoinColumn(name = "USER_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "POST_ID") })
-    private Set<Post> followsPost = new HashSet<>();
+    private List<Post> followsPost = new ArrayList<>();
 
     //Constructors
-    public User() {
-    }
-
-    public User(String email, String username, String password, Set<Role> roles) {
+    public User(String email, String username, String password, List<Role> roles) {
         this.email = email;
         this.username = username;
         this.roles = roles;
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, File avatar) {
+    public User(String email, String username, String password, List<Role> roles, File avatar) {
         this.email = email;
         this.username = username;
         this.avatar = avatar;
@@ -100,7 +105,7 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, List<Role> roles, List<Subject> hasAccess) {
         this.email = email;
         this.username = username;
         this.hasAccess = hasAccess;
@@ -108,7 +113,7 @@ public class User {
         this.password = password;
     }
 
-    public User(String email, String username, String password, Set<Role> roles, File avatar, Set<Subject> hasAccess) {
+    public User(String email, String username, String password, List<Role> roles, File avatar, List<Subject> hasAccess) {
         this.email = email;
         this.username = username;
         this.avatar = avatar;
@@ -117,146 +122,25 @@ public class User {
         this.hasAccess = hasAccess;
     }
 
-    //Getters and Setters (also remove and add for the Sets)
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
-    public void removeRole(Role role) {
-        roles.remove(role);
-    }
-
-    public void addRole(Role role){
-        roles.add(role);
-    }
-
-    public Set<Subject> getFollowsSubject() {
-        return followsSubject;
-    }
-
-    public void setFollowsSubject(Set<Subject> followsSubject) {
-        this.followsSubject = followsSubject;
-    }
-
-    public void removeFollowsSubject(Subject subject){
-        followsSubject.remove(subject);
-    }
-
-    public void addFollowsSubject(Subject subject) {
-        followsSubject.add(subject);
-    }
-
-    public Set<Subject> getHasAccess() {
-        return hasAccess;
-    }
-
-    public void setHasAccess(Set<Subject> hasAccess) {
-        this.hasAccess = hasAccess;
-    }
-
-    public void removeAccess(Subject subject){
-        hasAccess.remove(subject);
-    }
-
-    public void addAccess(Subject subject) {
-        hasAccess.add(subject);
-    }
-
-    public Set<Post> getFollowsPost() {
-        return followsPost;
-    }
-
-    public void setFollowsPost(Set<Post> followsPost) {
-        this.followsPost = followsPost;
-    }
-
-    public void removeFollowsPost(Post post) {
-        followsPost.remove(post);
-    }
-
-    public void addFollowsPost(Post post){
-        followsPost.add(post);
-    }
-
-    public Boolean isActivated() {
-        return isActivated;
-    }
-
-    public void setActivated(Boolean activated) {
-        isActivated = activated;
-    }
-
-    public Integer getValidationCode() {
-        return validationCode;
-    }
-
-    public void setValidationCode(Integer validationCode) {
-        this.validationCode = validationCode;
-    }
-
-    public Integer getActivationCode() {
-        return activationCode;
-    }
-
-    public void setActivationCode(Integer activationCode) {
-        this.activationCode = activationCode;
-    }
-
-    public File getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(File avatar) {
-        this.avatar = avatar;
-    }
-
-    //Other methods
-
-    public UserResponseDto getDtoFromUser(){
+    public UserResponseDto getDtoFromUser(String message){
 
         String urlAvatar = "";
-
         if (avatar != null) urlAvatar = avatar.getUrl();
 
+        List<BasicSubjectDtoResponse> hasAccessDto = new ArrayList<>();
+        if (hasAccess != null)
+            for (Subject subject : hasAccess){
+                hasAccessDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));
+            }
+
+        List<BasicSubjectDtoResponse> followSubjectDto = new ArrayList<>();
+        if (followsSubject != null)
+            for (Subject subject : followsSubject){
+                followSubjectDto.add(new BasicSubjectDtoResponse(subject.getId(), subject.getName()));
+            }
+
         return new UserResponseDto(
-                id, email, username, urlAvatar, hasAccess, isActivated, followsSubject, followsPost
+                id, email, username, urlAvatar, hasAccessDto, isActivated, followSubjectDto, followsPost, message
         );
     }
 }

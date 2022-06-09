@@ -1,109 +1,28 @@
 package com.secondcommit.forum.dto;
 
 import com.secondcommit.forum.entities.Post;
-import com.secondcommit.forum.entities.Subject;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.util.Set;
+import java.util.List;
 
 /**
  * DTO with the response data sent after the creation of a new user
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponseDto {
 
-    private String message = "Check your email account";
     private Long id;
     private String email;
     private String username;
     private String avatar;
-    private Set<Subject> hasAccess;
+    private List<BasicSubjectDtoResponse> hasAccess;
     private boolean isActivated;
-    private Set<Subject> followsSubject;
-    private Set<Post> followsPost;
-
-    public UserResponseDto() {
-    }
-
-    public UserResponseDto(Long id, String email, String username, String avatar, Set<Subject> hasAccess,
-                           boolean isActivated, Set<Subject> followsSubject, Set<Post> followsPost) {
-        this.id = id;
-        this.email = email;
-        this.username = username;
-        this.avatar = avatar;
-        this.hasAccess = hasAccess;
-        this.isActivated = isActivated;
-        this.followsSubject = followsSubject;
-        this.followsPost = followsPost;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(String avatar) {
-        this.avatar = avatar;
-    }
-
-    public Set<Subject> getHasAccess() {
-        return hasAccess;
-    }
-
-    public void setHasAccess(Set<Subject> hasAccess) {
-        this.hasAccess = hasAccess;
-    }
-
-    public boolean isActivated() {
-        return isActivated;
-    }
-
-    public void setActivated(boolean activated) {
-        isActivated = activated;
-    }
-
-    public Set<Subject> getFollowsSubject() {
-        return followsSubject;
-    }
-
-    public void setFollowsSubject(Set<Subject> followsSubject) {
-        this.followsSubject = followsSubject;
-    }
-
-    public Set<Post> getFollowsPost() {
-        return followsPost;
-    }
-
-    public void setFollowsPost(Set<Post> followsPost) {
-        this.followsPost = followsPost;
-    }
+    private List<BasicSubjectDtoResponse> followsSubject;
+    private List<Post> followsPost;
+    private String message;
+    
 }

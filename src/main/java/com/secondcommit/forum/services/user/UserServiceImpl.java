@@ -1,7 +1,9 @@
 package com.secondcommit.forum.services.user;
 
 import com.secondcommit.forum.dto.NewUserRequest;
+import com.secondcommit.forum.dto.SubjectDto;
 import com.secondcommit.forum.dto.UpdateUserDto;
+import com.secondcommit.forum.dto.UserResponseDto;
 import com.secondcommit.forum.entities.File;
 import com.secondcommit.forum.entities.Role;
 import com.secondcommit.forum.entities.Subject;
@@ -19,6 +21,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.*;
 
 /**
@@ -45,6 +49,8 @@ public class UserServiceImpl implements UserService{
     @Autowired
     private final CloudinaryServiceImpl cloudinary;
 
+    private final Long EXPIRATION = 30000L; // ms equivalent to 5 minutes
+
     public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository,
                            PasswordEncoder encoder, SparkPostServiceImpl sparkPost,
                            CloudinaryServiceImpl cloudinary, SubjectRepository subjectRepository) {
@@ -57,12 +63,12 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Method that creates a new user
-     * @param newUser
-     * @return ResponseEntity
+     * Method to create a new user
+     * @param newUser (NewUserRequest)
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> createUser(NewUserRequest newUser) {
+    public ResponseEntity<?> createUser(NewUserRequest newUser, String roleName) {
 
         //Access the repository to check if the username and/or email aren't being used yet
         Optional<User> userOpt = userRepository.findByUsername(newUser.getUsername());
@@ -80,23 +86,36 @@ public class UserServiceImpl implements UserService{
         //If it gets here, the validations were ok, so we create a new user
         User user = new User();
 
-        Set<Role> roles = new HashSet<>();
+        List<Role> roles = new ArrayList<>();
+        roles.add(roleRepository.findByName("USER").get());
 
-        List<Role> rolesRepo = roleRepository.findAll();
-        Optional<Role> role = roleRepository.findByName("USER");
-        roles.add(role.get());
+        if (roleName.equalsIgnoreCase("ADMIN"))
+            roles.add(roleRepository.findByName("ADMIN").get());
 
         //Validates subjects
-        Set<Subject> validSubjects = new HashSet<>();
+        List<Subject> validSubjects = new ArrayList<>();
 
         if (newUser.getHasAccess() != null){
-            for (Subject subject : newUser.getHasAccess()){
-                if (subjectRepository.equals(subject))
-                    validSubjects.add(subject);
+            for (String strSubject : newUser.getHasAccess()){
+                Optional<Subject> subjectOpt = subjectRepository.findByName(strSubject);
+                if (subjectOpt.isPresent())
+                    validSubjects.add(subjectOpt.get());
             }
+        }
 
-            user = new User(newUser.getEmail(), newUser.getUsername(),
-                    encoder.encode(newUser.getPassword()), roles, validSubjects);
+        user = new User(newUser.getEmail(), newUser.getUsername(),
+                encoder.encode(newUser.getPassword()), roles, validSubjects);
+
+        //Saves image in Cloudinary
+        if (newUser.getAvatar() != null){
+            try {
+                File photo = cloudinary.uploadImage(newUser.getAvatar());
+                user.setAvatar(photo);
+            } catch (Exception e){
+                System.err.println("Error: " + e.getMessage());
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("Upload failed"));
+            }
         }
 
         //Saves the user in the database
@@ -106,23 +125,31 @@ public class UserServiceImpl implements UserService{
         try {
             sparkPost.sendActivationMessage(user);
         } catch (SparkPostException e){
-            System.out.println("Error: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
         }
 
-        return ResponseEntity.ok().body(user.getDtoFromUser());
+        return ResponseEntity.ok().body(user.getDtoFromUser("Check your email account"));
     }
 
     /**
-     * Validates the new user
+     * Method to validate a new user
      * @param user
      * @param activationCode int
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: messageResponse, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> activateUser(User user, Integer activationCode) {
 
         if (user.getActivationCode() != null && activationCode.intValue() == user.getActivationCode().intValue()) {
-            user.setActivated(true);
+
+            //Checks if more than 5 minutes has passed since the activation code was set up
+            Long now = new Timestamp(System.currentTimeMillis()).getTime();
+
+                if ( now - user.getTimeStamp().getTime() < EXPIRATION)
+                    return ResponseEntity.badRequest()
+                            .body(new MessageResponse("The activation code has expired"));
+
+            user.setIsActivated(true);
             userRepository.save(user);
         } else {
             return ResponseEntity.badRequest()
@@ -142,21 +169,31 @@ public class UserServiceImpl implements UserService{
 
     /**
      * Method to update an avatar. Only one per user is allowed
-     * @param username
-     * @param avatar (file)
-     * @return ResponseEntity
+     * @param username (Gets from the jwt token)
+     * @param avatar (MultipartFile)
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> addAvatar(String username, MultipartFile avatar) {
 
+        //Gets user
         Optional<User> userOpt = userRepository.findByUsername(username);
 
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The username " +  username + " doesn't exist"));
+        //Checks if the user already has a file. If yes, destroys it
+        if (userOpt.get().getAvatar() != null){
 
+            try {
+                Boolean destroyed = cloudinary.deleteFile(userOpt.get().getAvatar().getCloudinaryId());
+                if (destroyed) userOpt.get().setAvatar(null);
+
+            } catch (IOException e){
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
+
+        //Saves image in Cloudinary
         try {
-            File photo = new File(cloudinary.uploadImage(avatar));
+            File photo = cloudinary.uploadImage(avatar);
             userOpt.get().setAvatar(photo);
             userRepository.save(userOpt.get());
         } catch (Exception e){
@@ -170,52 +207,91 @@ public class UserServiceImpl implements UserService{
     }
 
     /**
-     * Gets all info from the user
+     * Method to get user
      * @param id
-     * @return User
+     * @return ResponseEntity (ok: User, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getUser(Long id) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
 
-        return ResponseEntity.ok(userOpt.get());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser(" "));
     }
 
     /**
-     * Updates User (only username, email, isActivated, hasAccess(Set<Subject>)
+     * Method to get all users
+     * @return user
+     */
+    @Override
+    public ResponseEntity<?> getAllUsers() {
+
+        //Gets all users
+        List<User> users = userRepository.findAll();
+        List<UserResponseDto> response = new ArrayList<UserResponseDto>();
+
+        for (User user : users) response.add(user.getDtoFromUser(" "));
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Method to update User (only username, email, isActivated, hasAccess(Set<String>)
      * Sends an alert email after the update
      * @param id
      * @param userDto
-     * @return User
+     * @return ResponseEntity (ok: User, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto) {
+    public ResponseEntity<?> updateUser(Long id, UpdateUserDto userDto, String username) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
+        Optional<User> userConnecting = userRepository.findByUsername(username);
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to update, checks to see if the user is ADMIN
+        if (!userConnecting.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userOpt.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
+        }
+
+        //Validates username
+        if (userOpt.get().getUsername() != userDto.getUsername() &&
+                userRepository.existsByUsername(userDto.getUsername()))
             return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+                    .body(new MessageResponse("This username is already being used" ));
+
+        //Validates email
+        if (userOpt.get().getEmail() != userDto.getEmail() &&
+                userRepository.existsByEmail(userDto.getEmail()))
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("This email is already being used" ));
 
         //Starts updating
         userOpt.get().setUsername(userDto.getUsername());
         userOpt.get().setEmail(userDto.getEmail());
 
-        if (userDto.getActivated() != null)
-            userOpt.get().setActivated(userDto.getActivated());
+        if (userDto.getIsActivated() != null)
+            userOpt.get().setIsActivated(userDto.getIsActivated());
 
         //Validates subjects
-        Set<Subject> validSubjects = new HashSet<>();
+        List<Subject> validSubjects = new ArrayList<>();
 
         if (userDto.getHasAccess() != null){
-            for (Subject subject : userDto.getHasAccess()){
-                if (subjectRepository.equals(subject))
-                    validSubjects.add(subject);
+            for (String strSubject : userDto.getHasAccess()){
+                Optional<Subject> subjectOpt = subjectRepository.findByName(strSubject);
+                if (subjectOpt.isPresent())
+                    validSubjects.add(subjectOpt.get());
             }
 
             userOpt.get().setHasAccess(validSubjects);
@@ -230,22 +306,48 @@ public class UserServiceImpl implements UserService{
             System.out.println("Error :" + e.getMessage());
         }
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Your account has been updated"));
     }
 
     /**
-     * Deletes the user. Sends a goodbye email
+     * Method to elete the user. Sends a goodbye email
      * @param id
-     * @return
+     * @return ResponseEntity (ok: messageResponse, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> deleteUser(Long id) {
+    public ResponseEntity<?> deleteUser(Long id, String username) {
 
-        //Validates User
+        //Gets the user
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
+        Optional<User> userConnecting = userRepository.findByUsername(username);
+
+        //Tests if the user is allowed to edit this post (only authors and admins can do it)
+        //If the user isn't the one trying to delete, checks to see if the user is ADMIN
+        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
+
+            boolean isAdmin = false;
+
+            for (Role role  : userConnecting.get().getRoles()){
+                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
+            }
+
+            if (!isAdmin)
+                return ResponseEntity.badRequest()
+                        .body(new MessageResponse("The user " + username + " is not allowed to delete the user " +
+                                userOpt.get().getUsername()));
+        }
+
+        //Checks if the user already has a file. If yes, destroys it
+        if (userOpt.get().getAvatar() != null){
+
+            try {
+                Boolean destroyed = cloudinary.deleteFile(userOpt.get().getAvatar().getCloudinaryId());
+                if (destroyed) userOpt.get().setAvatar(null);
+
+            } catch (IOException e){
+                System.err.println("Error: " + e.getMessage());
+            }
+        }
 
         userRepository.delete(userOpt.get());
 
@@ -262,81 +364,108 @@ public class UserServiceImpl implements UserService{
     /**
      * Method to add access to one subject
      * @param id
-     * @param subject
+     * @param subjectDto
      * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> addAccess(Long id, Subject subject, String username) {
+    public ResponseEntity<?> addAccess(Long id, SubjectDto subjectDto) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
-
-        //Tests if the user is allowed to edit this post (only authors and admins can do it)
-        //If the user isn't the one trying to update, checks to see if the user is ADMIN
-        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
-
-            boolean isAdmin = false;
-
-            for (Role role  : userOpt.get().getRoles()){
-                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
-            }
-
-            if (!isAdmin)
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
-        }
 
         //Validates Subject
-        if (!subjectRepository.equals(subject))
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().addAccess(subject);
+        userOpt.get().getHasAccess().add(subjectOpt.get());
+        subjectOpt.get().getUsersWithAccess().add(userOpt.get());
         userRepository.save(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Added access to the subject " + subjectDto.getName()));
     }
 
     /**
      * Method to remove access to a subject
      * @param id
-     * @param subject
-     * @param username (gets from the jwt token)
+     * @param subjectDto
      * @return ResponseEntity (ok: userDto, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> removeAccess(Long id, Subject subject, String username) {
+    public ResponseEntity<?> removeAccess(Long id, SubjectDto subjectDto) {
 
-        //Validates User
+        //Gets User
         Optional<User> userOpt = userRepository.findById(id);
-        if (userOpt.isEmpty())
-            return ResponseEntity.badRequest()
-                    .body(new MessageResponse("The user id " + id + " doesn't exist!"));
-
-        //Tests if the user is allowed to edit this post (only authors and admins can do it)
-        //If the user isn't the one trying to update, checks to see if the user is ADMIN
-        if (!userOpt.get().getUsername().equalsIgnoreCase(username)){
-
-            boolean isAdmin = false;
-
-            for (Role role  : userOpt.get().getRoles()){
-                if (role.getName().equalsIgnoreCase("ADMIN")) isAdmin = true;
-            }
-
-            if (!isAdmin)
-                return ResponseEntity.badRequest()
-                        .body(new MessageResponse("The user " + username + " is not allowed to update the post " ));
-        }
 
         //Validates Subject
-        if (!userOpt.get().getHasAccess().contains(subject))
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
             return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
 
-        userOpt.get().removeAccess(subject);
+        userOpt.get().getHasAccess().remove(subjectOpt.get());
         userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersWithAccess().remove(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
 
-        return ResponseEntity.ok(userOpt.get().getDtoFromUser());
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("Removed access from subject " + subjectDto.getName()));
+    }
+
+    /**
+     * Method to make the user follow a subject
+     * @param id
+     * @param subjectDto
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> followSubject(Long id, SubjectDto subjectDto) {
+
+        //Gets User
+        Optional<User> userOpt = userRepository.findById(id);
+
+        //Validates Subject
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        //Checks if the user has access to the subject
+        if (!subjectOpt.get().getUsersWithAccess().contains(userOpt.get()))
+            return ResponseEntity.badRequest().body(new MessageResponse("The user doesn't have access to the subject"));
+
+        userOpt.get().getFollowsSubject().add(subjectOpt.get());
+        userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersFollowing().add(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("The user " + id + "now follows the subject " + subjectDto.getName()));
+    }
+
+    /**
+     * Method to make the user unfollow a subject
+     * @param id
+     * @param subjectDto
+     * @return ResponseEntity (ok: userDto, bad request: messageResponse)
+     */
+    @Override
+    public ResponseEntity<?> unfollowSubject(Long id, SubjectDto subjectDto) {
+
+        //Gets User
+        Optional<User> userOpt = userRepository.findById(id);
+
+        //Validates Subject
+        Optional<Subject> subjectOpt = subjectRepository.findByName(subjectDto.getName());
+
+        if (subjectOpt.isEmpty())
+            return ResponseEntity.badRequest().body(new MessageResponse("Invalid subject"));
+
+        userOpt.get().getFollowsSubject().remove(subjectOpt.get());
+        userRepository.save(userOpt.get());
+        subjectOpt.get().getUsersFollowing().remove(userOpt.get());
+        subjectRepository.save(subjectOpt.get());
+
+        return ResponseEntity.ok(userOpt.get().getDtoFromUser("The user " + id + "unfollowed the subject " + subjectDto.getName() + " anymore"));
     }
 }

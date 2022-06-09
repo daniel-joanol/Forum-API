@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+
 /**
  * Implementation of the Authentication Service Interface
  */
@@ -28,6 +30,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private final SparkPostServiceImpl sparkPost;
+
+    private final Long EXPIRATION = 300000L; // ms equivalent to 5 minutes
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder encoder, RoleRepository roleRepository,
                            SparkPostServiceImpl sparkPost){
@@ -69,6 +73,13 @@ public class AuthServiceImpl implements AuthService {
         if (validationCode.intValue() != user.getValidationCode().intValue())
             return ResponseEntity.badRequest()
                     .body(new MessageResponse("Wrong validation code"));
+
+        //Checks if more than 5 minutes has passed since the activation code was set up
+        Long now = new Timestamp(System.currentTimeMillis()).getTime();
+
+        if ( now - user.getTimeStamp().getTime() > EXPIRATION)
+            return ResponseEntity.badRequest()
+                    .body(new MessageResponse("The activation code has expired"));
 
         //Saves the new password
         user.setPassword(encoder.encode(newPass));

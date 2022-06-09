@@ -2,7 +2,9 @@ package com.secondcommit.forum.services.module;
 
 import com.secondcommit.forum.dto.ModuleDto;
 import com.secondcommit.forum.entities.Module;
+import com.secondcommit.forum.entities.Subject;
 import com.secondcommit.forum.repositories.ModuleRepository;
+import com.secondcommit.forum.repositories.SubjectRepository;
 import com.secondcommit.forum.security.payload.MessageResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +21,12 @@ public class ModuleServiceImpl implements ModuleService{
     @Autowired
     private ModuleRepository moduleRepository;
 
-    public ModuleServiceImpl(ModuleRepository moduleRepository) {
+    @Autowired
+    private SubjectRepository subjectRepository;
+
+    public ModuleServiceImpl(ModuleRepository moduleRepository, SubjectRepository subjectRepository) {
         this.moduleRepository = moduleRepository;
+        this.subjectRepository = subjectRepository;
     }
 
     /**
@@ -29,7 +35,10 @@ public class ModuleServiceImpl implements ModuleService{
      * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
-    public ResponseEntity<?> addModule(ModuleDto moduleDto) {
+    public ResponseEntity<?> addModule(Long id, ModuleDto moduleDto) {
+
+        //Gets module
+        Optional<Subject> subjectOpt = subjectRepository.findById(id);
 
         //Tests if the module already exists
         Optional<Module> moduleOpt = moduleRepository.findByName(moduleDto.getName());
@@ -39,27 +48,27 @@ public class ModuleServiceImpl implements ModuleService{
                     .body(new MessageResponse("The module " + moduleDto.getName() + " is already registered"));
 
         //Creates the new module
-        Module module = new Module(moduleDto.getName(), moduleDto.getDescription());
+        Module module = new Module(moduleDto.getName(), moduleDto.getDescription(), subjectOpt.get());
+        subjectOpt.get().getModules().add(module);
+        subjectOpt.get().refreshTotalModules();
         moduleRepository.save(module);
+        subjectRepository.save(subjectOpt.get());
 
-        return ResponseEntity.ok(module);
+        return ResponseEntity.ok(module.getDtoFromModule());
     }
 
     /**
-     * Method to get the module
+     * Method to get the all module data
      * @param id
      * @return ResponseEntity (ok: module, bad request: messageResponse)
      */
     @Override
     public ResponseEntity<?> getModule(Long id) {
 
-        //Validates the id
+        //Gets the module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
-        return ResponseEntity.ok(moduleOpt.get());
+        return ResponseEntity.ok(moduleOpt.get().getDtoFromModule());
     }
 
     /**
@@ -71,11 +80,8 @@ public class ModuleServiceImpl implements ModuleService{
     @Override
     public ResponseEntity<?> updateModule(Long id, ModuleDto moduleDto) {
 
-        //Validates the id
+        //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
-
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
 
         //Updates the module
         if (moduleDto.getName() != null)
@@ -86,7 +92,7 @@ public class ModuleServiceImpl implements ModuleService{
 
         moduleRepository.save(moduleOpt.get());
 
-        return ResponseEntity.ok(moduleOpt.get());
+        return ResponseEntity.ok(moduleOpt.get().getDtoFromModule());
     }
 
     /**
@@ -97,12 +103,14 @@ public class ModuleServiceImpl implements ModuleService{
     @Override
     public ResponseEntity<?> deleteModule(Long id) {
 
-        //Validates the id
+        //Gets module
         Optional<Module> moduleOpt = moduleRepository.findById(id);
 
-        if (moduleOpt.isEmpty())
-            return ResponseEntity.badRequest().body(new MessageResponse("Wrong id"));
-
+        //Removes module from subject before removing the module
+        Subject subject = moduleOpt.get().getSubject();
+        subject.getModules().remove(moduleOpt.get());
+        subject.refreshTotalModules();
+        subjectRepository.save(subject);
         moduleRepository.delete(moduleOpt.get());
 
         return ResponseEntity.ok().body(new MessageResponse("Module " + id + " deleted with success"));

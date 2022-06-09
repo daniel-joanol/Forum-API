@@ -1,11 +1,21 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.ModuleDtoResponse;
+import com.secondcommit.forum.dto.SubjectDtoResponse;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Entity that manages the subjects in the database
  */
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "subjects")
 public class Subject {
@@ -14,13 +24,13 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true, nullable = false)
     private String name;
 
-    @Column
+    @Column(name = "total_modules")
     private Integer totalModules = 0;
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinTable(name = "SUBJECT_AVATAR",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
@@ -29,74 +39,46 @@ public class Subject {
                     @JoinColumn(name = "AVATAR_ID") })
     private File avatar;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "SUBJECT_POSTS",
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @JoinTable(name = "SUBJECT_MODULES",
             joinColumns = {
                     @JoinColumn(name = "SUBJECT_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "MODULE_ID") })
-    private Set<Module> modules;
+    private List<Module> modules = new ArrayList<>();
 
-    public Subject() {
-    }
+    @ManyToMany(mappedBy = "hasAccess")
+    private List<User> usersWithAccess = new ArrayList<>();
 
+    @ManyToMany(mappedBy = "followsSubject")
+    private List<User> usersFollowing = new ArrayList<>();
+
+    //Constructors
     public Subject(String name) {
         this.name = name;
     }
 
-    public Subject(String name, Set<Module> modules) {
+    public Subject(String name, List<Module> modules) {
         this.name = name;
         this.modules = modules;
     }
 
-    public Long getId() {
-        return id;
+    public SubjectDtoResponse getDtoFromSubject(){
+        Set<ModuleDtoResponse> modulesDto = new HashSet<>();
+        String backupAvatar = "";
+
+        if (modules != null)
+            for (Module module : modules){
+                modulesDto.add(new ModuleDtoResponse(module.getId(), module.getName(), module.getDescription(), module.getTotalQuestions()));
+            }
+
+        if (avatar != null) backupAvatar = avatar.getUrl();
+
+        return new SubjectDtoResponse(id, name, backupAvatar , modulesDto);
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Integer getTotalModules() {
-        return totalModules;
-    }
-
-    public void setTotalModules(Integer totalModules) {
-        this.totalModules = totalModules;
-    }
-
-    public File getAvatar() {
-        return avatar;
-    }
-
-    public void setAvatar(File avatar) {
-        this.avatar = avatar;
-    }
-
-    public Set<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<Module> modules) {
-        this.modules = modules;
-    }
-
-    public void addModule(Module module){
-        modules.add(module);
-        totalModules = modules.size();
-    }
-
-    public void removeModule(Module module){
-        modules.remove(module);
+    public void refreshTotalModules(){
         totalModules = modules.size();
     }
 }

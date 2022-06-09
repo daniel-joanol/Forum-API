@@ -1,37 +1,21 @@
 package com.secondcommit.forum.dto;
 
-import com.secondcommit.forum.entities.Module;
-import java.util.Set;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Dto with the required data for the creation or update of a Subject
  */
+@Data
+@NoArgsConstructor
 public class SubjectDto {
 
     private String name;
-    private Set<Module> modules;
+    private MultipartFile avatar;
 
-    public SubjectDto() {
-    }
-
-    public SubjectDto(String name, Set<Module> modules) {
-        this.name = name;
-        this.modules = modules;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public SubjectDto(String name) {
         this.name = name;
     }
 
-    public Set<Module> getModules() {
-        return modules;
-    }
-
-    public void setModules(Set<Module> modules) {
-        this.modules = modules;
-    }
 }

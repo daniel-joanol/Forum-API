@@ -1,13 +1,18 @@
 package com.secondcommit.forum.entities;
 
+import com.secondcommit.forum.dto.BasicUserDto;
+import com.secondcommit.forum.dto.PostDtoResponse;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import javax.persistence.*;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Entity that manages the posts in the database
  */
+@Data
+@NoArgsConstructor
 @Entity
 @Table(name = "posts")
 public class Post {
@@ -19,224 +24,118 @@ public class Post {
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private User author;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column(length = 1048, nullable = false)
     private String content;
 
-    @Column
-    private int totalLikes = 0;
+    @Column(name = "total_likes")
+    private Integer totalLikes = 0;
 
-    @Column
-    private int totalDislikes = 0;
+    @Column(name = "total_dislikes")
+    private Integer totalDislikes = 0;
 
-    @Column
     private Date date = new Date();
 
-    @Column
-    private boolean fixed = false;
+    private Boolean fixed = false;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy ="followsPost")
+    private List<User> usersFollowing = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHOLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "USER_ID") })
-    private Set<User> usersWhoLike = new HashSet<>();
+    private List<User> usersWhoLike = new ArrayList<>();
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "USERS_WHODISLIKE_POST",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "USER_ID") })
-    private Set<User> usersWhoDislike = new HashSet<>();
+    private List<User> usersWhoDislike = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "POST_FILES",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "FILE_ID") })
-    private Set<File> files = new HashSet<>();
+    private List<File> files = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinTable(name = "POST_ANSWERS",
             joinColumns = {
                     @JoinColumn(name = "POST_ID")
             },
             inverseJoinColumns = {
                     @JoinColumn(name = "ANSWERS_ID") })
-    private Set<Answer> answers = new HashSet<>();
+    private List<Answer> answers = new ArrayList<>();
 
     @Column
-    private int totalAnswers = 0;
+    private Integer totalAnswers = 0;
+
+    @ManyToOne
+    private Module module;
 
     //Constructors
-
-    public Post() {
-    }
-
-    public Post(User author, String title, String content) {
+    public Post(User author, String title, String content, Module module) {
         this.author = author;
         this.title = title;
         this.content = content;
         date = new Date();
+        this.module = module;
     }
 
-    public Post(User author, String title, String content, Set<File> files) {
+    public Post(User author, String title, String content, List<File> files, Module module) {
         this.author = author;
         this.title = title;
         this.content = content;
         this.files = files;
         date = new Date();
+        this.module = module;
     }
 
-    //Getters and Setters (also remove and add for the Sets)
+    public PostDtoResponse getDtoFromPost(){
 
-    public Long getId() {
-        return id;
+        List<String> filesUrl = new ArrayList<>();
+        if (files != null){
+            for (File file : files){
+                filesUrl.add(file.getUrl());
+            }
+        }
+
+        List<BasicUserDto> basicUsersWhoLike = new ArrayList<>();
+        if (usersWhoLike != null){
+            for (User user : usersWhoLike){
+                basicUsersWhoLike.add(new BasicUserDto(user.getId(), user.getUsername()));
+            }
+        }
+
+        List<BasicUserDto> basicUsersWhoDislike = new ArrayList<>();
+        if (usersWhoDislike != null){
+            for (User user : usersWhoDislike){
+                basicUsersWhoDislike.add(new BasicUserDto(user.getId(), user.getUsername()));
+            }
+        }
+
+        return new PostDtoResponse(id, title, content, author.getUsername(), totalLikes,
+                totalDislikes, date, fixed, answers, totalAnswers, filesUrl, basicUsersWhoLike, basicUsersWhoDislike);
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void refreshLikes(){
+        totalLikes = usersWhoLike.size();
+        totalDislikes = usersWhoDislike.size();
     }
 
-    public User getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(User author) {
-        this.author = author;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
-
-    public int getLikes() {
-        return totalLikes;
-    }
-
-    public void setLikes(int totalLikes) {
-        this.totalLikes = totalLikes;
-    }
-
-    public int getDislikes() {
-        return totalDislikes;
-    }
-
-    public void setDislikes(int totalDislikes) {
-        this.totalDislikes = totalDislikes;
-    }
-
-    public Date getDate() {
-        return date;
-    }
-
-    public void setDate(Date date) {
-        this.date = date;
-    }
-
-    public boolean isFixed() {
-        return fixed;
-    }
-
-    public void setFixed(boolean fixed) {
-        this.fixed = fixed;
-    }
-
-    public Set<User> getUsersWhoLike() {
-        return usersWhoLike;
-    }
-
-    public void setUsersWhoLike(Set<User> usersWhoLike) {
-        this.usersWhoLike = usersWhoLike;
-    }
-
-    public void addUsersWhoLike(User user) {
-        usersWhoLike.add(user);
-        setLikes(usersWhoLike.size());
-    }
-
-    public void removeUsersWhoLike(User user) {
-        usersWhoLike.remove(user);
-        setLikes(usersWhoLike.size());
-    }
-
-    public Set<User> getUsersWhoDislike() {
-        return usersWhoDislike;
-    }
-
-    public void setUsersWhoDislike(Set<User> usersWhoDislike) {
-        this.usersWhoDislike = usersWhoDislike;
-    }
-
-    public void addUsersWhoDislike(User user) {
-        usersWhoDislike.add(user);
-        setDislikes(usersWhoDislike.size());
-    }
-
-    public void removeUsersWhoDislike(User user){
-        usersWhoDislike.remove(user);
-        setDislikes(usersWhoDislike.size());
-    }
-
-    public Set<File> getFiles() {
-        return files;
-    }
-
-    public void setFiles(Set<File> files) {
-        this.files = files;
-    }
-
-    public void addFile(File file){
-        files.add(file);
-    }
-
-    public void removeFile(File file){
-        files.remove(file);
-    }
-
-    public Set<Answer> getAnswers() {
-        return answers;
-    }
-
-    public void setAnswers(Set<Answer> answers) {
-        this.answers = answers;
-    }
-
-    public void addAnswer(Answer answer){
-        answers.add(answer);
-        setTotalAnswers(answers.size());
-    }
-
-    public void removeAnswer(Answer answer){
-        answers.remove(answer);
-        setTotalAnswers(answers.size());
-    }
-
-    public int getTotalAnswers() {
-        return totalAnswers;
-    }
-
-    public void setTotalAnswers(int totalAnswers) {
-        this.totalAnswers = totalAnswers;
+    public void refreshTotalAnswers(){
+        totalAnswers = answers.size();
     }
 }

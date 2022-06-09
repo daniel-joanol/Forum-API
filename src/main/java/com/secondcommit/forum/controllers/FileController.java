@@ -17,30 +17,32 @@ import java.util.Optional;
 /**
  * Controller to manage the upload of files
  * It's necessary to be authenticated
+ * It's only used to send images individually. When updating a user, as an example, you can send the image in the
+ *    userDto
  */
 @RestController
 @RequestMapping("/api/image")
-public class FileUploadController {
+public class FileController {
 
     private final UserServiceImpl userService;
     private final SubjectServiceImpl subjectService;
     private final SubjectRepository subjectRepository;
 
-    public FileUploadController(UserServiceImpl userService, SubjectServiceImpl subjectService,
-                                SubjectRepository subjectRepository) {
+    public FileController(UserServiceImpl userService, SubjectServiceImpl subjectService,
+                          SubjectRepository subjectRepository) {
         this.userService = userService;
         this.subjectService = subjectService;
         this.subjectRepository = subjectRepository;
     }
 
     /**
-     * Uploads the user avatar
+     * Method to upload the user avatar
      * @param username (gets from the jwt token)
      * @param avatar (MultipartFile)
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('USER')")
-    @PostMapping("/upload-avatar/user")
+    @PostMapping("/user")
     @ApiOperation("Uploads the user avatar")
     public ResponseEntity<?> uploadAvatarToUser(@CurrentSecurityContext(expression="authentication?.name") String username,
                                           MultipartFile avatar){
@@ -53,13 +55,13 @@ public class FileUploadController {
     }
 
     /**
-     * Uploads the subject avatar
+     * Method to upload the subject avatar
      * @param id (gets from the url)
      * @param avatar (MultipartFile)
-     * @return ResponseEntity
+     * @return ResponseEntity (ok: url, bad request: messageResponse)
      */
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("/upload-avatar/subject/{id}")
+    @PostMapping("/subject/{id}")
     @ApiOperation("Uploads the user avatar")
     public ResponseEntity<?> uploadAvatarToSubject(@PathVariable Long id, MultipartFile avatar){
 
